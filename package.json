@@ -1,19 +1,19 @@
 {
-  "name": "peeroulette-backend",
-  "version": "0.0.1",
-  "description": "peeroulette backend",
+  "name": "sebamaster-movie-backend",
+  "version": "1.0.0",
+  "description": "EBAMaster movie backend as a service",
   "main": "index.js",
   "private": true,
   "repository": {
     "type": "git",
-    "url": "https://gitlab.lrz.de/seba-master-2021/team-50/backend.git"
+    "url": "https://github.com/sebischair/sebamaster-movie-backend.git"
   },
-  "author": "peeroulette",
+  "author": "sebischair",
   "license": "MIT",
   "bugs": {
-    "url": "https://gitlab.lrz.de/seba-master-2021/team-50/backend/issues"
+    "url": "https://github.com/sebischair/sebamaster-movie-backend/issues"
   },
-  "homepage": "https://gitlab.lrz.de/seba-master-2021/team-50/backend.git#readme",
+  "homepage": "ttps://github.com/sebischair/sebamaster-movie-backend.git#readme",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node ./index.js",
