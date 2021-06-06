@@ -22,7 +22,7 @@ api.use(middlewares.allowCrossDomain);
 // Basic route
 api.get('/', (req, res) => {
     res.json({
-        name: 'Peeroulette Backend'
+        name: 'SEBA Master Movie Backend'
     });
 });
 
