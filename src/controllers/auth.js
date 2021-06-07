@@ -81,17 +81,26 @@ const register = async (req, res) => {
             password: hashedPassword,
             role: req.body.isAdmin ? "admin" : "member",
         };
-
+        console.log('This is compname: ' + req.body.compname);
         // create a user in database
-        const org = {
-            company_name: req.body.compname,
-            domains: [req.body.domains],
-        };
+
+        if (req.body.compname != ""){
+            const org = {
+                company_name: req.body.compname,
+                domains: [req.body.domains],
+            };
+
+            await OrganizationModel.create(org);
+        }
+
+
+
+
 
         // create the user in the database
         let retUser = await UserModel.create(user);
 
-        let retOrg = await OrganizationModel.create(org);
+
 
         // if user is registered without errors
         // create a token
@@ -112,6 +121,7 @@ const register = async (req, res) => {
             token: token,
         });
     } catch (err) {
+        console.log('Getting in here');
         if (err.code == 11000) {
             return res.status(400).json({
                 error: "User exists",
