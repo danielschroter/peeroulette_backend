@@ -81,24 +81,23 @@ const register = async (req, res) => {
             password: hashedPassword,
             role: req.body.isAdmin ? "admin" : "member",
         };
-        console.log('This is compname: ' + req.body.compname);
-        // create a user in database
+
+        // create the user in the database
+        let retUser = await UserModel.create(user);
 
         if (req.body.compname != ""){
             const org = {
                 company_name: req.body.compname,
+                account_owner: retUser._id,
                 domains: [req.body.domains],
             };
 
-            await OrganizationModel.create(org);
+            let retOrg = await OrganizationModel.create(org);
+            UserModel.findOneAndUpdate({_id:retUser._id}, {account_owner_of_organization:retOrg._id}, {new: true})
         }
 
 
 
-
-
-        // create the user in the database
-        let retUser = await UserModel.create(user);
 
 
 

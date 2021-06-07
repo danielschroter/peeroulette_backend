@@ -10,6 +10,11 @@ const OrganizationSchema  = new mongoose.Schema({
         unique: true,
         required: true,
     },
+    account_owner: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        required: true,
+    },
     domains: [{
         type: String,
     }],

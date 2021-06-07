@@ -21,6 +21,8 @@ const UserSchema = new mongoose.Schema({
         // if not specified the role member is choosen
         default: "member",
     },
+    account_owner_of_organization: { type: mongoose.Schema.Types.ObjectId,
+        ref: 'Organization', }
 });
 
 UserSchema.set("versionKey", false);
