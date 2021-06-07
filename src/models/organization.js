@@ -25,4 +25,4 @@ OrganizationSchema.set('versionKey', false);
 
 
 // Export the Movie model
-module.exports = mongoose.model('User', OrganizationSchema);
+module.exports = mongoose.model('Organization', OrganizationSchema);

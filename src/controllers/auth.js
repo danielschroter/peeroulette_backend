@@ -5,6 +5,7 @@ const bcrypt = require("bcryptjs");
 
 const config = require("../config");
 const UserModel = require("../models/user");
+const OrganizationModel = require("../models/organization")
 
 const login = async (req, res) => {
     // check if the body of the request contains all necessary properties
@@ -81,8 +82,16 @@ const register = async (req, res) => {
             role: req.body.isAdmin ? "admin" : "member",
         };
 
+        // create a user in database
+        const org = {
+            company_name: req.body.compname,
+            domains: [req.body.domains],
+        };
+
         // create the user in the database
         let retUser = await UserModel.create(user);
+
+        let retOrg = await OrganizationModel.create(org);
 
         // if user is registered without errors
         // create a token
