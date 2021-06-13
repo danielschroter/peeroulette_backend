@@ -75,6 +75,29 @@ const update = async (req, res) => {
     }
 };
 
+const read = async (req, res) => {
+    try {
+        // get movie with id from database
+        let user = await UserModel.findById(req.params.id).exec();
+
+        // if no movie with id is found, return 404
+        if (!user)
+            return res.status(404).json({
+                error: "Not Found",
+                message: `User not found`,
+            });
+
+        // return gotten movie
+        return res.status(200).json(user);
+    } catch (err) {
+        console.log(err);
+        return res.status(500).json({
+            error: "Internal Server Error",
+            message: err.message,
+        });
+    }
+};
+
 const remove = async (req, res) => {
     try {
         await UserModel.findByIdAndRemove(req.params.id).exec();
