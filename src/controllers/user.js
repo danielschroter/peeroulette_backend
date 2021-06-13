@@ -44,24 +44,33 @@ const read = async (req, res) => {
 };
 
 const update = async (req, res) => {
+    // check if the body of the request contains all necessary properties
     if (Object.keys(req.body).length === 0) {
         return res.status(400).json({
-            error: 'Bad Request',
-            message: 'The request body is empty'
+            error: "Bad Request",
+            message: "The request body is empty",
         });
     }
 
+    // handle the request
     try {
-        let user = await UserModel.findByIdAndUpdate(req.params.id, req.body, {
-            new: true,
-            runValidators: true
-        }).exec();
+        // find and update movie with id
+        let user = await UserModel.findByIdAndUpdate(
+            req.params.id,
+            req.body,
+            {
+                new: true,
+                runValidators: true,
+            }
+        ).exec();
 
+        // return updated movie
         return res.status(200).json(user);
-    } catch(err) {
+    } catch (err) {
+        console.log(err);
         return res.status(500).json({
-            error: 'Internal server error',
-            message: err.message
+            error: "Internal server error",
+            message: err.message,
         });
     }
 };
