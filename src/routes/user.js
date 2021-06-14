@@ -19,14 +19,11 @@ router.post(
 router.get("/:id", UserController.read); // Read a movie by Id
 router.put(
     "/:id",
-    middlewares.checkAuthentication,
-    middlewares.checkIsAdmin,
     UserController.update
 ); // Update a movie by Id, needs logged in user with the admin role
 router.delete(
     "/:id",
-    middlewares.checkAuthentication,
-    middlewares.checkIsAdmin,
+
     UserController.remove
 ); // Delete a movie by Id, needs logged in user with the admin role
 
