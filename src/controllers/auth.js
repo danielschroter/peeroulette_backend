@@ -93,7 +93,7 @@ const register = async (req, res) => {
             };
 
             let retOrg = await OrganizationModel.create(org);
-            UserModel.findOneAndUpdate({_id:retUser._id}, {account_owner_of_organization:retOrg._id}, {new: true})
+            await UserModel.findOneAndUpdate({_id:retUser._id}, {account_owner_of_organization:retOrg._id}, {new: true})
         }
 
 
