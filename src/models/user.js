@@ -26,6 +26,18 @@ const UserSchema = new mongoose.Schema({
     interests: [{
         type: String,
     }],
+    city: {
+        type: String,
+        default: "Your City",
+    },
+    university: {
+        type: String,
+        default: "Your University",
+    },
+    organization: {
+        type: String,
+        default: "Your Organization",
+    },
 });
 
 UserSchema.set("versionKey", false);
