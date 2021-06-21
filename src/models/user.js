@@ -22,7 +22,10 @@ const UserSchema = new mongoose.Schema({
         default: "member",
     },
     account_owner_of_organization: { type: mongoose.Schema.Types.ObjectId,
-        ref: 'Organization', }
+        ref: 'Organization', },
+    interests: [{
+        type: String,
+    }],
 });
 
 UserSchema.set("versionKey", false);
