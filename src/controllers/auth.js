@@ -96,11 +96,6 @@ const register = async (req, res) => {
             await UserModel.findOneAndUpdate({_id:retUser._id}, {account_owner_of_organization:retOrg._id}, {new: true})
         }
 
-
-
-
-
-
         // if user is registered without errors
         // create a token
         const token = jwt.sign(
@@ -134,6 +129,8 @@ const register = async (req, res) => {
         }
     }
 };
+
+
 
 const me = async (req, res) => {
     try {
