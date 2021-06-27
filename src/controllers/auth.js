@@ -132,32 +132,25 @@ const register = async (req, res) => {
 
 const registerOrganization = async (req, res) => {
     // check if the body of the request contains all necessary properties
-    if (!Object.prototype.hasOwnProperty.call(req.body, "password"))
+    if (!Object.prototype.hasOwnProperty.call(req.body, "user_id"))
         return res.status(400).json({
             error: "Bad Request",
-            message: "The request body must contain a password property",
-        });
-
-    if (!Object.prototype.hasOwnProperty.call(req.body, "username"))
-        return res.status(400).json({
-            error: "Bad Request",
-            message: "The request body must contain a username property",
+            message: "The request body must contain a user property",
         });
 
     // handle the request
     try {
-        // hash the password before storing it in the database
-        const hashedPassword = bcrypt.hashSync(req.body.password, 8);
 
-        // create a user object
-        const user = {
-            username: req.body.username,
-            password: hashedPassword,
-            role: req.body.isAdmin ? "admin" : "member",
-        };
+        console.warn("check user id")
+        console.warn(req.body.user_id)
 
-        // create the user in the database
-        let retUser = await UserModel.create(user);
+        // get user from the database
+
+        let id = req.body.user_id;
+        let retUser = await UserModel.findById(id);
+
+        console.warn("check user:")
+        console.warn(retUser._id);
 
         if (req.body.compname != ""){
             const org = {
