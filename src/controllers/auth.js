@@ -140,17 +140,10 @@ const registerOrganization = async (req, res) => {
 
     // handle the request
     try {
-
-        console.warn("check user id")
-        console.warn(req.body.user_id)
-
         // get user from the database
 
         let id = req.body.user_id;
         let retUser = await UserModel.findById(id);
-
-        console.warn("check user:")
-        console.warn(retUser._id);
 
         if (req.body.compname != ""){
             const org = {
