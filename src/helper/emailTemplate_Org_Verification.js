@@ -7,7 +7,7 @@ module.exports = {
     html: `
     <h3> Thank You for using our Corporate Accounts </h3>
     <p> We will activate the following domain to your corporate account: ${domain} </p>
-      <a href='${frontendURL}/confirm/${id}'>
+      <a href='${frontendURL}/confirm/${id}/${domain}'>
         Click to confirm your domain for Peeroulette
       </a>
     `,
