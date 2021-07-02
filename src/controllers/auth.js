@@ -235,15 +235,26 @@ const confirm = async (req, res) => {
     let user = await UserModel.findById(id).exec();
     console.log("User: " + user);
     console.log("User confirmed?: " + user.confirmed);
-    if (!user)
-      return res.status(404).json({
-        error: "Not Found",
-        message: `User not found`,
-      });
-    else if (user && !user.confirmed) {
-      await UserModel.findByIdAndUpdate(id, { confirmed: true }).exec();
-      return res.status(200).json(user);
+
+    //if user not found, search for object_id of domain
+    if(!user){
+        let obj = await DomainModel.findById(id).exec();
+        if (!obj)
+            return res.status(404).json({
+                error: "Not Found",
+                message: `Object not found`,
+            });
+        else if (obj && !obj.confirmed) {
+            await DomainModel.findByIdAndUpdate(id, { confirmed: true }).exec();
+            return res.status(200).json(obj);
+        }
+
+    }else if (user && !user.confirmed) {
+        await UserModel.findByIdAndUpdate(id, { confirmed: true }).exec();
+        return res.status(200).json(user);
     }
+
+
   } catch (err) {
     return res.status(500).json({
       error: "Internal Server Error",
