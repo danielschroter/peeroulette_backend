@@ -123,7 +123,7 @@ const register = async (req, res) => {
             retDoms.push(retDom._id);
 
             try {
-                sendEmail(mail, emailTemplate_Org_Verification.confirm(retUser._id, d));
+                sendEmail(mail, emailTemplate_Org_Verification.confirm(retDom._id, d));
             } catch (err) {
                 console.log(err);
             }
