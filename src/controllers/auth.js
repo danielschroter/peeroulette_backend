@@ -234,11 +234,14 @@ const confirm = async (req, res) => {
     // get user name from database
     let user = await UserModel.findById(id).exec();
     console.log("User: " + user);
-    console.log("User confirmed?: " + user.confirmed);
 
     //if user not found, search for object_id of domain
     if(!user){
+        console.log("Entering Domain section");
         let obj = await DomainModel.findById(id).exec();
+        console.log("Domain: " + obj);
+        console.log("Domain confirmed?: " + obj.confirmed);
+
         if (!obj)
             return res.status(404).json({
                 error: "Not Found",
