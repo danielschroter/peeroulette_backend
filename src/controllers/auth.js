@@ -6,8 +6,10 @@ const bcrypt = require("bcryptjs");
 const config = require("../config");
 const UserModel = require("../models/user");
 const OrganizationModel = require("../models/organization");
+const DomainModel = require("../models/domain");
 const sendEmail = require("../helper/sendEmail");
 const emailTemplate = require("../helper/emailTemplate");
+const emailTemplate_Org_Verification = require("../helper/emailTemplate_Org_Verification");
 
 const login = async (req, res) => {
   // check if the body of the request contains all necessary properties
@@ -99,18 +101,45 @@ const register = async (req, res) => {
     }
 
     if (req.body.compname != "") {
-      const org = {
-        company_name: req.body.compname,
-        account_owner: retUser._id,
-        domains: [req.body.domains],
-      };
+        const org = {
+            company_name: req.body.compname,
+            account_owner: retUser._id,
+        };
 
-      let retOrg = await OrganizationModel.create(org);
-      await UserModel.findOneAndUpdate(
+        let retOrg = await OrganizationModel.create(org);
+
+        const domains = req.body.domains.replace(" ", "").split(',');
+        const retDoms = new Array();
+
+        for (var mail of domains) {
+            const d = mail.split('@')[1]
+            const dom = {
+                name: d,
+                confirmed: false,
+                verified_by: retUser._id,
+                organization: retOrg._id,
+            };
+            let retDom = await DomainModel.create(dom);
+            retDoms.push(retDom._id);
+
+            try {
+                sendEmail(mail, emailTemplate_Org_Verification.confirm(retUser._id, d));
+            } catch (err) {
+                console.log(err);
+            }
+        }
+
+        await OrganizationModel.findOneAndUpdate(
+            { _id: retOrg._id },
+            { domains: retDoms },
+            { new: true }
+        );
+
+        await UserModel.findOneAndUpdate(
         { _id: retUser._id },
         { account_owner_of_organization: retOrg._id },
         { new: true }
-      );
+        );
     }
 
 
@@ -135,6 +164,7 @@ const register = async (req, res) => {
       });
   } catch (err) {
       console.log('Getting in here');
+      console.log(err);
       if (err.code == 11000) {
           return res.status(400).json({
               error: "User exists",
