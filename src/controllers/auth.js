@@ -75,6 +75,12 @@ const register = async (req, res) => {
       message: "The request body must contain a username property",
     });
 
+  if (!Object.prototype.hasOwnProperty.call(req.body, "email"))
+    return res.status(400).json({
+      error: "Bad Request",
+      message: "The request body must contain a email property",
+    });
+
   // handle the request
   try {
     // hash the password before storing it in the database
@@ -113,67 +119,53 @@ const register = async (req, res) => {
       );
     }
 
-
-
-      // if user is registered without errors
-      // create a token
-      const token = jwt.sign(
-          {
-              _id: retUser._id,
-              username: retUser.username,
-              role: retUser.role,
-          },
-          config.JwtSecret,
-          {
-              expiresIn: 86400, // expires in 24 hours
-          }
-      );
-
-      // return generated token
-      res.status(200).json({
-          token: token,
-      });
+    // return new user
+    res.status(200).json(retUser);
   } catch (err) {
-      console.log('Getting in here');
-      if (err.code == 11000) {
-          return res.status(400).json({
-              error: "User exists",
-              message: err.message,
-          });
-      } else {
-          return res.status(500).json({
-              error: "Internal server error",
-              message: err.message,
-          });
-      }
+    console.log("Getting in here");
+    if (err.code == 11000) {
+      return res.status(400).json({
+        error: "User exists",
+        message: err.message,
+      });
+    } else {
+      return res.status(500).json({
+        error: "Internal server error",
+        message: err.message,
+      });
+    }
   }
 };
 
 const registerOrganization = async (req, res) => {
-    // check if the body of the request contains all necessary properties
-    if (!Object.prototype.hasOwnProperty.call(req.body, "user_id"))
-        return res.status(400).json({
-            error: "Bad Request",
-            message: "The request body must contain a user property",
-        });
+  // check if the body of the request contains all necessary properties
+  if (!Object.prototype.hasOwnProperty.call(req.body, "user_id"))
+    return res.status(400).json({
+      error: "Bad Request",
+      message: "The request body must contain a user property",
+    });
 
-    // handle the request
-    try {
-        // get user from the database
+  // handle the request
+  try {
+    // get user from the database
 
-        let id = req.body.user_id;
-        let retUser = await UserModel.findById(id);
+    let id = req.body.user_id;
+    let retUser = await UserModel.findById(id);
 
-        if (req.body.compname != ""){
-            const org = {
-                company_name: req.body.compname,
-                account_owner: retUser._id,
-                domains: [req.body.domains],
-            };
+    if (req.body.compname != "") {
+      const org = {
+        company_name: req.body.compname,
+        account_owner: retUser._id,
+        domains: [req.body.domains],
+      };
 
-            let retOrg = await OrganizationModel.create(org);
-            await UserModel.findOneAndUpdate({_id:retUser._id}, {account_owner_of_organization:retOrg._id}, {new: true})
-        }
+      let retOrg = await OrganizationModel.create(org);
+      await UserModel.findOneAndUpdate(
+        { _id: retUser._id },
+        { account_owner_of_organization: retOrg._id },
+        { new: true }
+      );
+    }
 
     // return new user
     res.status(200).json(retUser);
