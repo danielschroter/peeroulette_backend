@@ -15,9 +15,12 @@ const OrganizationSchema  = new mongoose.Schema({
         ref: 'User',
         required: true,
     },
-    domains: [{
-        type: String,
-    }],
+    domains: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Domain',
+        }
+    ],
     address: {
         street: String,
         housing_number: Number,

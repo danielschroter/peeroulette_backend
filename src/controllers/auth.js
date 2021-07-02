@@ -6,8 +6,10 @@ const bcrypt = require("bcryptjs");
 const config = require("../config");
 const UserModel = require("../models/user");
 const OrganizationModel = require("../models/organization");
+const DomainModel = require("../models/domain");
 const sendEmail = require("../helper/sendEmail");
 const emailTemplate = require("../helper/emailTemplate");
+const emailTemplate_Org_Verification = require("../helper/emailTemplate_Org_Verification");
 
 const login = async (req, res) => {
   // check if the body of the request contains all necessary properties
@@ -105,18 +107,45 @@ const register = async (req, res) => {
     }
 
     if (req.body.compname != "") {
-      const org = {
-        company_name: req.body.compname,
-        account_owner: retUser._id,
-        domains: [req.body.domains],
-      };
+        const org = {
+            company_name: req.body.compname,
+            account_owner: retUser._id,
+        };
 
-      let retOrg = await OrganizationModel.create(org);
-      await UserModel.findOneAndUpdate(
+        let retOrg = await OrganizationModel.create(org);
+
+        const domains = req.body.domains.replace(" ", "").split(',');
+        const retDoms = new Array();
+
+        for (var mail of domains) {
+            const d = mail.split('@')[1]
+            const dom = {
+                name: d,
+                confirmed: false,
+                verified_by: retUser._id,
+                organization: retOrg._id,
+            };
+            let retDom = await DomainModel.create(dom);
+            retDoms.push(retDom._id);
+
+            try {
+                sendEmail(mail, emailTemplate_Org_Verification.confirm(retDom._id, d));
+            } catch (err) {
+                console.log(err);
+            }
+        }
+
+        await OrganizationModel.findOneAndUpdate(
+            { _id: retOrg._id },
+            { domains: retDoms },
+            { new: true }
+        );
+
+        await UserModel.findOneAndUpdate(
         { _id: retUser._id },
         { account_owner_of_organization: retOrg._id },
         { new: true }
-      );
+        );
     }
 
     // return new user
@@ -188,24 +217,34 @@ const registerOrganization = async (req, res) => {
 const confirm = async (req, res) => {
   try {
     const id = req.body.id;
-    console.log("ID: " + id);
+    //console.log("ID: " + id);
 
     // check if valid ObjectID
     //...
 
     // get user name from database
     let user = await UserModel.findById(id).exec();
-    console.log("User: " + user);
-    console.log("User confirmed?: " + user.confirmed);
-    if (!user)
-      return res.status(404).json({
-        error: "Not Found",
-        message: `User not found`,
-      });
-    else if (user && !user.confirmed) {
-      await UserModel.findByIdAndUpdate(id, { confirmed: true }).exec();
-      return res.status(200).json(user);
+
+    //if user not found, search for object_id of domain
+    if(!user){
+        let obj = await DomainModel.findById(id).exec();
+
+        if (!obj)
+            return res.status(404).json({
+                error: "Not Found",
+                message: `Object not found`,
+            });
+        else if (obj && !obj.confirmed) {
+            await DomainModel.findByIdAndUpdate(id, { confirmed: true }).exec();
+            return res.status(200).json(obj);
+        }
+
+    }else if (user && !user.confirmed) {
+        await UserModel.findByIdAndUpdate(id, { confirmed: true }).exec();
+        return res.status(200).json(user);
     }
+
+
   } catch (err) {
     return res.status(500).json({
       error: "Internal Server Error",
