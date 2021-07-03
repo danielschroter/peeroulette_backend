@@ -5,9 +5,10 @@ MongoClient.connect(url, function(err, db) {
     if (err) throw err;
     var dbo = db.db("moviedb");
     var myobj = {
-        company_name: "Part GmbH",
-        domains: ["@test_gmbh.de", "@test_gmbh.com"],
-        account_owner: "5706dcb2e69695f3096743af",
+        name: "Part GmbH",
+        confirmed: false,
+        verified_by: "5706dcb2e69695f3096743af",
+        organization: "60c859dbd47d0f0aa4727fcf",
     };
 
     var interests = {
