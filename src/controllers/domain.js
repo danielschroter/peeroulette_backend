@@ -21,24 +21,19 @@ const list = async (req, res) => {
 const getUserDomains = async (req, res) => {
 
     try {
-        // get all interests in database
+        // get all all users from database
         let domains = await DomainModel.find({}).exec();
-        console.warn("USER ID")
-        console.warn(req.body.user_id)
 
+        // get only domains of current user
         let i = 0;
         let userDomains = [];
-        console.warn("USER ID")
-        console.warn(req.body.user_id)
         for (i; i < domains.length; i++) {
             if(domains[i].verified_by.equals(req.body.user_id)) {
                 userDomains.push(domains[i]);
             }
         }
-        console.warn("USER DOMAINS")
-        console.warn(userDomains)
 
-        // return gotten movies
+        // return gotten domains of user
         return res.status(200).json(userDomains);
     } catch (err) {
         console.log(err);
@@ -75,20 +70,18 @@ const create = async (req, res) => {
     try {
         let domain = await DomainModel.create(req.body.domain)
 
-
         let org = await OrganizationModel.findById(domain.organization);
-        console.warn("domains before")
-        console.warn(org.domains)
+
+        // update domains of organization with new domain
         let domains = org.domains;
         domains.push(domain._id);
 
-        let org2 = await OrganizationModel.findOneAndUpdate(
+        await OrganizationModel.findOneAndUpdate(
             { _id: domain.organization },
             { domains: domains },
             { new: true },
         );
-        console.warn("domains after")
-        console.warn(org2.domains)
+
         // return new domain
         res.status(200).json(domain);
     } catch (err) {
@@ -109,24 +102,17 @@ const create = async (req, res) => {
 const remove = async (req, res) => {
     try {
         let domain = await DomainModel.findByIdAndRemove(req.params.id).exec();
-        console.warn("removed domain ID")
-        console.warn(domain._id)
-
         let org = await OrganizationModel.findById(domain.organization);
 
+        // remove  domain and then update domains in organisation
         let oldOrgDomains = org.domains;
-        console.warn("before delete")
-        console.warn(oldOrgDomains)
-
         oldOrgDomains.splice(domain._id,1)
 
-        let org2 = await OrganizationModel.findByIdAndUpdate(
+        await OrganizationModel.findByIdAndUpdate(
             { _id: domain.organization },
             { domains: oldOrgDomains },
             { new: true },
         );
-        console.warn("updated domains after deletion")
-        console.warn(org2.domains)
 
         return res.status(200).json({message: `domain with id${req.params.id} was deleted`});
     } catch(err) {

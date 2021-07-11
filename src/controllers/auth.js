@@ -187,8 +187,8 @@ const registerOrganization = async (req, res) => {
             account_owner: retUser._id,
       };
 
+        // create all domains
           let retOrg = await OrganizationModel.create(org);
-
           let i = 0;
           for (i; i < req.body.domainNames.length; i++) {
               let newDomain = Object();
@@ -199,15 +199,16 @@ const registerOrganization = async (req, res) => {
               await DomainModel.create(newDomain);
           }
 
+        // update organisation with user id and organisation id
         await UserModel.findOneAndUpdate(
         { _id: retUser._id },
         { account_owner_of_organization: retOrg._id },
         { new: true }
         );
 
+          // get all domainIds of current user
           let allDomains = await DomainModel.find({}).exec();
-        let domainIds = [];
-
+          let domainIds = [];
           let j = 0;
           for (j; j < allDomains.length; j++) {
               if(allDomains[j].verified_by.equals(retUser._id)) {
@@ -215,13 +216,13 @@ const registerOrganization = async (req, res) => {
               }
           }
 
+          // update organisation with new domainIds
           await OrganizationModel.findOneAndUpdate(
               { _id: retOrg._id },
               { domains: domainIds },
           );
       }
-    let user = retUser;
-    // return new user
+        let user = retUser;
     return res.status(200).json(user);
   } catch (err) {
     if (err.code == 11000) {
