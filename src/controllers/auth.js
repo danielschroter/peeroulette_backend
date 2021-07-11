@@ -179,7 +179,6 @@ const registerOrganization = async (req, res) => {
     // get user from the database
     let id = req.body.user_id;
     let retUser = await UserModel.findById(id);
-    //console.warn(req.body.domainNames.length)
       // first create organisation with empty domains here
       if (req.body.compname != "") {
         const org = {
@@ -187,26 +186,40 @@ const registerOrganization = async (req, res) => {
             company_name: req.body.compname,
             account_owner: retUser._id,
       };
-          console.warn("domainData");
-          console.warn(req.body.domainNames)
-          console.warn(retUser._id)
 
           let retOrg = await OrganizationModel.create(org);
 
           let i = 0;
-          console.warn("go in ones")
-          let newDomain = Object();
-          newDomain.name = req.body.domainNames[i];
-          newDomain.confirmed = false;
-          newDomain.verified_by = retUser._id;
-          newDomain.organization = retOrg._id;
-          await DomainModel.create(newDomain);
+          for (i; i < req.body.domainNames.length; i++) {
+              let newDomain = Object();
+              newDomain.name = req.body.domainNames[i];
+              newDomain.confirmed = false;
+              newDomain.verified_by = retUser._id;
+              newDomain.organization = retOrg._id;
+              await DomainModel.create(newDomain);
+          }
 
         await UserModel.findOneAndUpdate(
         { _id: retUser._id },
         { account_owner_of_organization: retOrg._id },
         { new: true }
         );
+
+          let allDomains = await DomainModel.find({}).exec();
+        let domainIds = [];
+
+          let j = 0;
+          for (j; j < allDomains.length; j++) {
+              if(allDomains[j].verified_by.equals(retUser._id)) {
+                  domainIds.push(allDomains[j]._id)
+              }
+          }
+
+          await OrganizationModel.findOneAndUpdate(
+              { _id: retOrg._id },
+              { domains: domainIds },
+          );
+
       }
 
     // return new user

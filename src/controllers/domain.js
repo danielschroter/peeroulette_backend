@@ -1,6 +1,7 @@
 "use strict";
 
 const DomainModel = require("../models/domain");
+const OrganizationModel = require("../models/organization");
 
 const list = async (req, res) => {
     try {
@@ -24,6 +25,7 @@ const getUserDomains = async (req, res) => {
         let domains = await DomainModel.find({}).exec();
         console.warn("USER ID")
         console.warn(req.body.user_id)
+
         {/*
         let i = 0;
         let userDomains = [];
@@ -35,7 +37,6 @@ const getUserDomains = async (req, res) => {
             }
         }
         */}
-
 
         // return gotten movies
         return res.status(200).json(domains);
@@ -73,7 +74,21 @@ const create = async (req, res) => {
     // handle the request
     try {
         let domain = await DomainModel.create(req.body.domain)
-        console.warn("domain create is called")
+
+
+        let org = await OrganizationModel.findById(domain.organization);
+        console.warn("domains before")
+        console.warn(org.domains)
+        let domains = org.domains;
+        domains.push(domain._id);
+
+        let org2 = await OrganizationModel.findOneAndUpdate(
+            { _id: domain.organization },
+            { domains: domains },
+            { new: true },
+        );
+        console.warn("domains after")
+        console.warn(org2.domains)
         // return new domain
         res.status(200).json(domain);
     } catch (err) {
@@ -93,7 +108,25 @@ const create = async (req, res) => {
 
 const remove = async (req, res) => {
     try {
-        await DomainModel.findByIdAndRemove(req.params.id).exec();
+        let domain = await DomainModel.findByIdAndRemove(req.params.id).exec();
+        console.warn("removed domain ID")
+        console.warn(domain._id)
+
+        let org = await OrganizationModel.findById(domain.organization);
+
+        let oldOrgDomains = org.domains;
+        console.warn("before delete")
+        console.warn(oldOrgDomains)
+
+        oldOrgDomains.splice(domain._id,1)
+
+        let org2 = await OrganizationModel.findByIdAndUpdate(
+            { _id: domain.organization },
+            { domains: oldOrgDomains },
+            { new: true },
+        );
+        console.warn("updated domains after deletion")
+        console.warn(org2.domains)
 
         return res.status(200).json({message: `domain with id${req.params.id} was deleted`});
     } catch(err) {
