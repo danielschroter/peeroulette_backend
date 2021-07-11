@@ -6,9 +6,39 @@ const list = async (req, res) => {
     try {
         // get all interests in database
         let domain = await DomainModel.find({}).exec();
-
         // return gotten movies
         return res.status(200).json(domain);
+    } catch (err) {
+        console.log(err);
+        return res.status(500).json({
+            error: "Internal server error",
+            message: err.message,
+        });
+    }
+};
+
+const getUserDomains = async (req, res) => {
+
+    try {
+        // get all interests in database
+        let domains = await DomainModel.find({}).exec();
+        console.warn("USER ID")
+        console.warn(req.body.user_id)
+        {/*
+        let i = 0;
+        let userDomains = [];
+        console.warn("USER ID")
+        console.warn(req.body.user_id)
+        for (i; i < domains.length; i++) {
+            if(domains[i].verified_by === req.body.user_id) {
+                userDomains.push(domains[i]);
+            }
+        }
+        */}
+
+
+        // return gotten movies
+        return res.status(200).json(domains);
     } catch (err) {
         console.log(err);
         return res.status(500).json({
@@ -43,10 +73,10 @@ const create = async (req, res) => {
     // handle the request
     try {
         let domain = await DomainModel.create(req.body.domain)
+        console.warn("domain create is called")
         // return new domain
         res.status(200).json(domain);
     } catch (err) {
-        console.log("Getting in here");
         if (err.code == 11000) {
             return res.status(400).json({
                 error: "Domain exists",
@@ -75,6 +105,7 @@ const remove = async (req, res) => {
 };
 
 module.exports = {
+    getUserDomains,
     create,
     list,
     read,

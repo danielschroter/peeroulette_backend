@@ -177,35 +177,49 @@ const registerOrganization = async (req, res) => {
   // handle the request
   try {
     // get user from the database
-
     let id = req.body.user_id;
     let retUser = await UserModel.findById(id);
-
-    if (req.body.compname != "") {
-      const org = {
-        company_name: req.body.compname,
-        account_owner: retUser._id,
-        domains: [req.body.domains],
+    //console.warn(req.body.domainNames.length)
+      // first create organisation with empty domains here
+      if (req.body.compname != "") {
+        const org = {
+            domains: [],
+            company_name: req.body.compname,
+            account_owner: retUser._id,
       };
+          console.warn("domainData");
+          console.warn(req.body.domainNames)
+          console.warn(retUser._id)
 
-      let retOrg = await OrganizationModel.create(org);
-      await UserModel.findOneAndUpdate(
+          let retOrg = await OrganizationModel.create(org);
+
+          let i = 0;
+          console.warn("go in ones")
+          let newDomain = Object();
+          newDomain.name = req.body.domainNames[i];
+          newDomain.confirmed = false;
+          newDomain.verified_by = retUser._id;
+          newDomain.organization = retOrg._id;
+          await DomainModel.create(newDomain);
+
+        await UserModel.findOneAndUpdate(
         { _id: retUser._id },
         { account_owner_of_organization: retOrg._id },
         { new: true }
-      );
-    }
+        );
+      }
 
     // return new user
-    res.status(200).json(retUser);
+    res.status(200).json();
   } catch (err) {
-    console.log("Getting in here");
     if (err.code == 11000) {
+        console.warn("error 11000")
       return res.status(400).json({
         error: "User exists",
         message: err.message,
       });
     } else {
+        console.warn("error 500")
       return res.status(500).json({
         error: "Internal server error",
         message: err.message,
