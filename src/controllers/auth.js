@@ -219,11 +219,10 @@ const registerOrganization = async (req, res) => {
               { _id: retOrg._id },
               { domains: domainIds },
           );
-
       }
-
+    let user = retUser;
     // return new user
-    res.status(200).json();
+    return res.status(200).json(user);
   } catch (err) {
     if (err.code == 11000) {
         console.warn("error 11000")

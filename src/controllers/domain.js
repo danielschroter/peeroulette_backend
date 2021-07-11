@@ -26,20 +26,20 @@ const getUserDomains = async (req, res) => {
         console.warn("USER ID")
         console.warn(req.body.user_id)
 
-        {/*
         let i = 0;
         let userDomains = [];
         console.warn("USER ID")
         console.warn(req.body.user_id)
         for (i; i < domains.length; i++) {
-            if(domains[i].verified_by === req.body.user_id) {
+            if(domains[i].verified_by.equals(req.body.user_id)) {
                 userDomains.push(domains[i]);
             }
         }
-        */}
+        console.warn("USER DOMAINS")
+        console.warn(userDomains)
 
         // return gotten movies
-        return res.status(200).json(domains);
+        return res.status(200).json(userDomains);
     } catch (err) {
         console.log(err);
         return res.status(500).json({
