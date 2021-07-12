@@ -9,6 +9,7 @@ const UserController = require('../controllers/user');
 
 router.get("/", UserController.list); // List all users
 router.get("/:id", UserController.read); // Read a user by Id
+router.post("/getEmployeeFilter", UserController.getEmployeeFilter)
 router.put(
     "/:id",
     UserController.update
