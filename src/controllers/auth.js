@@ -47,7 +47,9 @@ const login = async (req, res) => {
     });
 
     // check if user confirmed his email to login
-    if (!user.confirmed) return res.status(401).send({ token: null });
+    if (!user.confirmed) return res.status(404).send({
+      error: "User not confirmed. Check your mailbox!",
+    });
 
     // if user is found and password is valid
     // create a token
@@ -95,14 +97,14 @@ const register = async (req, res) => {
     // hash the password before storing it in the database
     const hashedPassword = bcrypt.hashSync(req.body.password, 8);
     
-  // // Check if username already exists
-  // let checkUser = await UserModel.findOne({
-  //   username: req.body.username,
-  // }).exec();
-  // if (checkUser)
-  //   return res.status(404).json({
-  //     error: "Username already exists.",
-  //   });
+  // Check if username already exists
+  let checkUser = await UserModel.findOne({
+    username: req.body.username,
+  }).exec();
+  if (checkUser)
+    return res.status(404).json({
+      error: "Username already exists.",
+    });
 
     // create a user object
     const user = {
@@ -168,7 +170,7 @@ const register = async (req, res) => {
     }
 
     // return new user
-    res.status(200).json(retUser);
+    return res.status(200).json({message: "Registration successful",});
   } catch (err) {
     console.log("Getting in here");
     if (err.code == 11000) {
