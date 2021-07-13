@@ -32,15 +32,23 @@ const login = async (req, res) => {
       username: req.body.username,
     }).exec();
 
+    console.log("username" + req.body.username);
+
     // check if the password is valid
     const isPasswordValid = bcrypt.compareSync(
       req.body.password,
       user.password
     );
-    if (!isPasswordValid) return res.status(401).send({ token: null });
+    if (!isPasswordValid) {
+        console.log("Password not correct");
+        return res.status(401).send({ token: null });
+    };
 
     // check if user confirmed his email to login
-    if (!user.confirmed) return res.status(401).send({ token: null });
+    if (!user.confirmed) {
+        console.log("User not confirmed");
+        return res.status(401).send({ token: null });
+    };
 
     // if user is found and password is valid
     // create a token
@@ -52,10 +60,13 @@ const login = async (req, res) => {
       }
     );
 
+
+
     return res.status(200).json({
       token: token,
     });
   } catch (err) {
+      console.log("Error when logging in");
     return res.status(404).json({
       error: "User Not Found",
       message: err.message,
