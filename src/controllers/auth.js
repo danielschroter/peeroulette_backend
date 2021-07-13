@@ -196,35 +196,62 @@ const registerOrganization = async (req, res) => {
   // handle the request
   try {
     // get user from the database
-
     let id = req.body.user_id;
     let retUser = await UserModel.findById(id);
-
-    if (req.body.compname != "") {
-      const org = {
-        company_name: req.body.compname,
-        account_owner: retUser._id,
-        domains: [req.body.domains],
+      // first create organisation with empty domains here
+      if (req.body.compname != "") {
+        const org = {
+            domains: [],
+            company_name: req.body.compname,
+            account_owner: retUser._id,
       };
 
-      let retOrg = await OrganizationModel.create(org);
-      await UserModel.findOneAndUpdate(
+        // create all domains
+          let retOrg = await OrganizationModel.create(org);
+          let i = 0;
+          for (i; i < req.body.domainNames.length; i++) {
+              let newDomain = Object();
+              newDomain.name = req.body.domainNames[i];
+              newDomain.confirmed = false;
+              newDomain.verified_by = retUser._id;
+              newDomain.organization = retOrg._id;
+              await DomainModel.create(newDomain);
+          }
+
+        // update organisation with user id and organisation id
+        await UserModel.findOneAndUpdate(
         { _id: retUser._id },
         { account_owner_of_organization: retOrg._id },
         { new: true }
-      );
-    }
+        );
 
-    // return new user
-    res.status(200).json(retUser);
+          // get all domainIds of current user
+          let allDomains = await DomainModel.find({}).exec();
+          let domainIds = [];
+          let j = 0;
+          for (j; j < allDomains.length; j++) {
+              if(allDomains[j].verified_by.equals(retUser._id)) {
+                  domainIds.push(allDomains[j]._id)
+              }
+          }
+
+          // update organisation with new domainIds
+          await OrganizationModel.findOneAndUpdate(
+              { _id: retOrg._id },
+              { domains: domainIds },
+          );
+      }
+        let user = retUser;
+    return res.status(200).json(user);
   } catch (err) {
-    console.log("Getting in here");
     if (err.code == 11000) {
+        console.warn("error 11000")
       return res.status(400).json({
         error: "User exists",
         message: err.message,
       });
     } else {
+        console.warn("error 500")
       return res.status(500).json({
         error: "Internal server error",
         message: err.message,

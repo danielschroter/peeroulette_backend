@@ -49,6 +49,10 @@ const UserSchema = new mongoose.Schema({
       type: String,
       default: "Your Organization",
   },
+  employeeFilter: {
+    type: Boolean,
+    default: false,
+  }
 });
 
 UserSchema.set("versionKey", false);
