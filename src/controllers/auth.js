@@ -187,12 +187,17 @@ const registerOrganization = async (req, res) => {
             account_owner: retUser._id,
       };
 
+        console.warn("domains")
+        console.warn(req.body.domainNames)
+
         // create all domains
           let retOrg = await OrganizationModel.create(org);
           let i = 0;
           for (i; i < req.body.domainNames.length; i++) {
+              let fullDomainName = req.body.domainNames[i];
+              let domainNameTail = req.body.domainNames[i].split('@')[1];
               let newDomain = Object();
-              newDomain.name = req.body.domainNames[i];
+              newDomain.name = fullDomainName;
               newDomain.confirmed = false;
               newDomain.verified_by = retUser._id;
               newDomain.organization = retOrg._id;
