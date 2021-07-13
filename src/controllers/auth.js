@@ -197,11 +197,17 @@ const registerOrganization = async (req, res) => {
               let fullDomainName = req.body.domainNames[i];
               let domainNameTail = req.body.domainNames[i].split('@')[1];
               let newDomain = Object();
-              newDomain.name = fullDomainName;
+              newDomain.name = domainNameTail;
               newDomain.confirmed = false;
               newDomain.verified_by = retUser._id;
               newDomain.organization = retOrg._id;
-              await DomainModel.create(newDomain);
+              let createdDomain = await DomainModel.create(newDomain);
+
+              try {
+                  sendEmail(fullDomainName, emailTemplate_Org_Verification.confirm(createdDomain._id, domainNameTail));
+              } catch (err) {
+                  console.log(err);
+              }
           }
 
         // update organisation with user id and organisation id
