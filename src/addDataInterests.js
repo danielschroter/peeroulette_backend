@@ -11,6 +11,16 @@ MongoClient.connect(url, function(err, db) {
         organization: "60c859dbd47d0f0aa4727fcf",
     };
 
+    var appointments = {
+            title: "DeepL Exam",
+            startDate: '2021-07-13T15:45',
+            endDate: '2021-07-13T17:45',
+            description: "Write an DeepL Exam",
+            link: "Jitsi URL1",
+            user: '60ecae1607bc0e63ac91e780',
+            interests: ["Business and Industry"],
+    }
+
     var interests = {
         facebookInterests:
             ["Business and Industry",
@@ -338,7 +348,7 @@ MongoClient.connect(url, function(err, db) {
             ],
     }
 
-    dbo.collection("interests").insertOne(interests, function(err, res) {
+    dbo.collection("appointments").insertOne(appointments, function(err, res) {
         if (err) throw err;
         console.log("1 document inserted");
         db.close();

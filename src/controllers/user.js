@@ -70,6 +70,27 @@ const remove = async (req, res) => {
     }
 };
 
+const switchEmployeeFilter = async (req,res) => {
+    try {
+        console.log("Getting here");
+        console.log("this is the req.body " + req.body.id);
+        let oldUser = await UserModel.findByIdAndUpdate(req.body.id).exec();
+
+        let updatedUser = await UserModel.findOneAndUpdate(
+            { _id: req.body.id },
+            { employeeFilter: !oldUser.employeeFilter },
+            { new: true }
+        );
+
+        return res.status(200).json(updatedUser.employeeFilter);
+    } catch(err) {
+        return res.status(500).json({
+            error: 'Internal server error',
+            message: err.message
+        });
+    }
+}
+
 const list  = async (req, res) => {
     try {
         let users = await UserModel.find({}).exec();
@@ -87,6 +108,7 @@ const list  = async (req, res) => {
 module.exports = {
     read,
     update,
+    switchEmployeeFilter,
     remove,
     list
 };
