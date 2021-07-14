@@ -151,7 +151,6 @@ const register = async (req, res) => {
     // return new user
     res.status(200).json(retUser);
   } catch (err) {
-    console.log("Getting in here");
     if (err.code == 11000) {
       return res.status(400).json({
         error: "User exists",
@@ -187,15 +186,12 @@ const registerOrganization = async (req, res) => {
             account_owner: retUser._id,
       };
 
-        console.warn("domains")
-        console.warn(req.body.domainNames)
-
         // create all domains
           let retOrg = await OrganizationModel.create(org);
           let i = 0;
           for (i; i < req.body.domainNames.length; i++) {
               let fullDomainName = req.body.domainNames[i];
-              let domainNameTail = req.body.domainNames[i].split('@')[1];
+              let domainNameTail = req.body.domainNames[i].replace(" ", "").split('@')[1];
               let newDomain = Object();
               newDomain.name = domainNameTail;
               newDomain.confirmed = false;
