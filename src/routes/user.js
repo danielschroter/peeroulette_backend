@@ -9,6 +9,8 @@ const UserController = require('../controllers/user');
 
 router.get("/", UserController.list); // List all users
 router.get("/:id", UserController.read); // Read a user by Id
+router.get("/:id/available", UserController.available); // List available users
+router.get("/:id/available/:page", UserController.available); // List available users
 router.post("/switchEmployeeFilter", UserController.switchEmployeeFilter)
 router.put(
     "/:id",
