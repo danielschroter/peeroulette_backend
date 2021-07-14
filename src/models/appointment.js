@@ -13,7 +13,7 @@ const AppointmentSchema  = new mongoose.Schema({
     user: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
-        required: true,
+        // required: true,
     },
     interests: [{
         type: String,
@@ -26,8 +26,8 @@ const AppointmentSchema  = new mongoose.Schema({
     // ],
 });
 
-DomainSchema.set('versionKey', false);
-DomainSchema.set('timestamps', true);
+AppointmentSchema.set('versionKey', false);
+AppointmentSchema.set('timestamps', true);
 
 
 // Export the Movie model
