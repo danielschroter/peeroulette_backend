@@ -186,7 +186,7 @@ const registerOrganization = async (req, res) => {
             account_owner: retUser._id,
       };
 
-        // create all domains
+          // create all domains
           let retOrg = await OrganizationModel.create(org);
           let i = 0;
           for (i; i < req.body.domainNames.length; i++) {
@@ -198,7 +198,7 @@ const registerOrganization = async (req, res) => {
               newDomain.verified_by = retUser._id;
               newDomain.organization = retOrg._id;
               let createdDomain = await DomainModel.create(newDomain);
-
+              console.warn(req.body.domainNames)
               try {
                   sendEmail(fullDomainName, emailTemplate_Org_Verification.confirm(createdDomain._id, domainNameTail));
               } catch (err) {
@@ -206,7 +206,9 @@ const registerOrganization = async (req, res) => {
               }
           }
 
-        // update organisation with user id and organisation id
+
+
+          // update organisation with user id and organisation id
         await UserModel.findOneAndUpdate(
         { _id: retUser._id },
         { account_owner_of_organization: retOrg._id },
