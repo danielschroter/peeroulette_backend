@@ -177,7 +177,8 @@ const registerOrganization = async (req, res) => {
   try {
     // get user from the database
     let id = req.body.user_id;
-    let retUser = await UserModel.findById(id);
+
+      let retUser = await UserModel.findById(id);
       // first create organisation with empty domains here
       if (req.body.compname != "") {
         const org = {
@@ -189,6 +190,7 @@ const registerOrganization = async (req, res) => {
           // create all domains
           let retOrg = await OrganizationModel.create(org);
           let i = 0;
+
           for (i; i < req.body.domainNames.length; i++) {
               let fullDomainName = req.body.domainNames[i];
               let domainNameTail = req.body.domainNames[i].replace(" ", "").split('@')[1];
@@ -198,7 +200,6 @@ const registerOrganization = async (req, res) => {
               newDomain.verified_by = retUser._id;
               newDomain.organization = retOrg._id;
               let createdDomain = await DomainModel.create(newDomain);
-              console.warn(req.body.domainNames)
               try {
                   sendEmail(fullDomainName, emailTemplate_Org_Verification.confirm(createdDomain._id, domainNameTail));
               } catch (err) {
