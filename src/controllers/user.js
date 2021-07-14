@@ -23,15 +23,50 @@ const update = async (req, res) => {
             }
         ).exec();
 
-        // return updated movie
-        return res.status(200).json(user);
-    } catch (err) {
-        console.log(err);
-        return res.status(500).json({
-            error: "Internal server error",
-            message: err.message,
-        });
-    }
+    // return updated movie
+    return res.status(200).json(user);
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json({
+      error: "Internal server error",
+      message: err.message,
+    });
+  }
+};
+
+const available = async (req, res) => {
+  console.log("Ava.: " + req.params.id);
+  if(req.params.page){
+    var page = parseInt(req.params.page);
+  }else{
+    var page = 0;
+  }
+  try {
+    // get movie with id from database
+    let user = await UserModel.findOne({
+      $and: [{
+        "online": true
+      }, {
+        "_id": {
+          $ne: req.params.id
+        }
+      }]
+    }).sort({_id:1}).skip(page).limit(1).exec();
+    // if no movie with id is found, return 404
+    if (!user)
+      return res.status(404).json({
+        error: "Not Found",
+        message: `User not found`,
+      });
+    // return gotten movie
+    return res.status(200).json(user);
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json({
+      error: "Internal Server Error",
+      message: err.message,
+    });
+  }
 };
 
 const read = async (req, res) => {
@@ -70,13 +105,19 @@ const remove = async (req, res) => {
     }
 };
 
-const getEmployeeFilter = async (req,res) => {
+const switchEmployeeFilter = async (req,res) => {
     try {
         console.log("Getting here");
         console.log("this is the req.body " + req.body.id);
-        let retUser = await UserModel.findById(req.body.id).exec();
-        console.log(retUser.employeeFilter);
-        return res.status(200).json(retUser.employeeFilter);
+        let oldUser = await UserModel.findByIdAndUpdate(req.body.id).exec();
+
+        let updatedUser = await UserModel.findOneAndUpdate(
+            { _id: req.body.id },
+            { employeeFilter: !oldUser.employeeFilter },
+            { new: true }
+        );
+
+        return res.status(200).json(updatedUser.employeeFilter);
     } catch(err) {
         return res.status(500).json({
             error: 'Internal server error',
@@ -100,9 +141,10 @@ const list  = async (req, res) => {
 
 
 module.exports = {
-    read,
-    update,
-    getEmployeeFilter,
-    remove,
-    list
+  read,
+  update,
+  remove,
+  list,
+  available,
+  switchEmployeeFilter,
 };
