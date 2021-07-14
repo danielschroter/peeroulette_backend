@@ -49,6 +49,14 @@ const UserSchema = new mongoose.Schema({
       type: String,
       default: "Your Organization",
   },
+  online: {
+      type: Boolean,
+      default: false,
+  },
+  // online_until: {
+  //     type: Int64,
+  //     default: 0,
+  // },
   employeeFilter: {
     type: Boolean,
     default: false,
