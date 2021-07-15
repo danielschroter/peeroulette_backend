@@ -189,56 +189,55 @@ const registerOrganization = async (req, res) => {
             account_owner: retUser._id,
       };
 
-          // create all domains
-          let retOrg = await OrganizationModel.create(org);
-
+            // Check if one of the domains already exists, then continue with process
           let i = 0;
           for (i; i < req.body.domainNames.length; i++) {
-              let fullDomainName = req.body.domainNames[i];
               let domainNameTail = req.body.domainNames[i].toString().replace(" ", "").split('@')[1];
-
               // if domain already exists throw error
               try {
-                  let allDomains = await DomainModel.find({}).exec();
-                  let j = 0;
-                  for (j; j < allDomains.length; j++) {
-                      if(allDomains[j].name === domainNameTail) {
-                          console.warn("got in domainNameTail")
-                          console.warn(domainNameTail)
-                          return res.status(400).json({
-                              error: "Domain already exists",
-                              message: err.message,
-                          });
-                      }
+                  let dom = await DomainModel.findOne({
+                      name: domainNameTail,
+                  }).exec();
+
+                  if (dom) {
+                      return res.status(400).json({
+                          error: "Domain already exists",
+                      });
                   }
               } catch (err) {
-                  return res.status(400).json({
-                      error: "Domain already exists",
+                  return res.status(500).json({
+                      error: "Internal Server error 2",
                       message: err.message,
                   });
               }
+          }
+
+          // create all domains
+          let retOrg = await OrganizationModel.create(org);
 
 
+          i = 0;
+          for (i; i < req.body.domainNames.length; i++) {
+              let fullDomainName = req.body.domainNames[i];
+              let domainNameTail = req.body.domainNames[i].replaceAll(" ", "").split('@')[1];
               let newDomain = Object();
               newDomain.name = domainNameTail;
               newDomain.confirmed = false;
               newDomain.verified_by = retUser._id;
               newDomain.organization = retOrg._id;
               let createdDomain = await DomainModel.create(newDomain);
-
               try {
                   sendEmail(fullDomainName, emailTemplate_Org_Verification.confirm(createdDomain._id, domainNameTail));
               } catch (err) {
                   console.log(err);
               }
           }
-
           // update organisation with user id and organisation id
-        await UserModel.findOneAndUpdate(
+          await UserModel.findOneAndUpdate(
         { _id: retUser._id },
         { account_owner_of_organization: retOrg._id },
         { new: true }
-        );
+          );
 
           // get all domainIds of current user
           let allDomains = await DomainModel.find({}).exec();

@@ -6,7 +6,10 @@ const mongoose = require('mongoose');
 // Define the movie schema
 const DomainSchema  = new mongoose.Schema({
 
-    name: String,
+    name: {
+        type: String,
+        unique: true,
+    },
     confirmed: Boolean,
     verified_by: {
         type: mongoose.Schema.Types.ObjectId,
