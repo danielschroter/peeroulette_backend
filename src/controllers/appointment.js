@@ -1,17 +1,32 @@
 "use strict";
 
 const AppointmentModel = require("../models/appointment");
+const UserModel = require("../models/user");
 
 const getAppointments = async (req, res) => {
     try {
         // get all appointments from database
 
         console.log("Getting here");
-        let appointments = await AppointmentModel.find({}).exec();
-
-        console.log("appointments " + appointments);
-        // return appointments
-        return res.status(200).json(appointments);
+        var mapping = {};
+        var appointments = await AppointmentModel.find({}).exec();
+        console.log("Das sind appointments[0] " + appointments[0] + " type " + typeof(appointments));
+        for (var i in appointments){
+            // console.log("app vor Änderung " + appointments[i]);
+            try{
+                const userid = appointments[i].user;
+                // console.log("Das ist user type "+ typeof(appointments[i].user) + " user: " + appointments[i].user);
+                let user = await UserModel.findById(userid);
+                // console.log("username " +user.username);
+                // appointments[i] = { ...appointments[i], user: user.username };
+                mapping[userid] = user.username;
+                // console.log("App nach Änderung " + appointments[i]);
+            }catch (e) {
+                // console.log("app: " + appointments[i].title + " hat keinen User eingetragen");
+            }
+        }
+        // console.log(mapping);
+        return res.status(200).json({appointments: appointments, mapping:mapping});
     } catch (err) {
         console.log(err);
         return res.status(500).json({
