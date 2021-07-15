@@ -114,7 +114,7 @@ const register = async (req, res) => {
 
         let retOrg = await OrganizationModel.create(org);
 
-        const domains = req.body.domains.toString().replaceAll(" ", "").split(',');
+        const domains = req.body.domains.toString().replace(" ", "").split(',');
         const retDoms = new Array();
 
         for (var mail of domains) {
@@ -194,25 +194,32 @@ const registerOrganization = async (req, res) => {
           let i = 0;
 
           for (i; i < req.body.domainNames.length; i++) {
-              console.warn("get in here 1")
               let fullDomainName = req.body.domainNames[i];
-              let domainNameTail = req.body.domainNames[i].toString().replaceAll(" ", "").split('@')[1];
+              let domainNameTail = req.body.domainNames[i].toString().replace(" ", "").split('@')[1];
               let newDomain = Object();
               newDomain.name = domainNameTail;
               newDomain.confirmed = false;
               newDomain.verified_by = retUser._id;
               newDomain.organization = retOrg._id;
-              console.warn("get before create domain")
               let createdDomain = await DomainModel.create(newDomain);
-              console.warn("get after create domain")
 
-              try {
+              // if domain already exists throw error
+              let allDomains = await DomainModel.find({}).exec();
+              let j = 0;
+              for (j; j < allDomains.length; j++) {
+                  if(allDomains[i].name === domainNameTail) {
+                      return res.status(400).json({
+                          error: "Domain already exists",
+                          message: err.message,
+                      });
+                  }
+              }
+                  try {
                   sendEmail(fullDomainName, emailTemplate_Org_Verification.confirm(createdDomain._id, domainNameTail));
               } catch (err) {
                   console.log(err);
               }
           }
-
 
           // update organisation with user id and organisation id
         await UserModel.findOneAndUpdate(
@@ -230,8 +237,6 @@ const registerOrganization = async (req, res) => {
                   domainIds.push(allDomains[j]._id)
               }
           }
-          console.warn("get in here 2")
-
 
           // update organisation with new domainIds
           await OrganizationModel.findOneAndUpdate(
@@ -239,20 +244,18 @@ const registerOrganization = async (req, res) => {
               { domains: domainIds },
           );
           organization = retOrg;
-          console.warn("get in here 3")
-
       }
     return res.status(200).json({organization: organization});
   } catch (err) {
     if (err.code == 11000) {
-        console.warn("error 11000")
+        console.warn("11100 error")
       return res.status(400).json({
         error: "Organization already exists",
         message: err.message,
       });
     } else {
-        console.warn("error 500")
-      return res.status(500).json({
+        console.warn("500 error")
+        return res.status(500).json({
         error: "Internal server error",
         message: err.message,
       });

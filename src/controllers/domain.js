@@ -72,7 +72,7 @@ const create = async (req, res) => {
     // handle the request
     try {
         let fullDomainName = req.body.domain.name;
-        let domainNameTail = fullDomainName.toString().replaceAll(" ", "").split('@')[1];
+        let domainNameTail = fullDomainName.replace(" ", "").split('@')[1];
         req.body.domain.name = domainNameTail;
 
         let domain = await DomainModel.create(req.body.domain)
