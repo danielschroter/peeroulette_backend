@@ -198,18 +198,26 @@ const registerOrganization = async (req, res) => {
               let domainNameTail = req.body.domainNames[i].toString().replace(" ", "").split('@')[1];
 
               // if domain already exists throw error
-              let allDomains = await DomainModel.find({}).exec();
-              let j = 0;
-              for (j; j < allDomains.length; j++) {
-                  if(allDomains[j].name === domainNameTail) {
-                      console.warn("got in domainNameTail")
-                      console.warn(domainNameTail)
-                      return res.status(400).json({
-                          error: "Domain already exists",
-                          message: err.message,
-                      });
+              try {
+                  let allDomains = await DomainModel.find({}).exec();
+                  let j = 0;
+                  for (j; j < allDomains.length; j++) {
+                      if(allDomains[j].name === domainNameTail) {
+                          console.warn("got in domainNameTail")
+                          console.warn(domainNameTail)
+                          return res.status(400).json({
+                              error: "Domain already exists",
+                              message: err.message,
+                          });
+                      }
                   }
+              } catch (err) {
+                  return res.status(400).json({
+                      error: "Domain already exists",
+                      message: err.message,
+                  });
               }
+
 
               let newDomain = Object();
               newDomain.name = domainNameTail;
