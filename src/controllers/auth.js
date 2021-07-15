@@ -114,7 +114,7 @@ const register = async (req, res) => {
 
         let retOrg = await OrganizationModel.create(org);
 
-        const domains = req.body.domains.replace(" ", "").split(',');
+        const domains = req.body.domains.replaceAll(" ", "").split(',');
         const retDoms = new Array();
 
         for (var mail of domains) {
@@ -193,7 +193,7 @@ const registerOrganization = async (req, res) => {
 
           for (i; i < req.body.domainNames.length; i++) {
               let fullDomainName = req.body.domainNames[i];
-              let domainNameTail = req.body.domainNames[i].replace(" ", "").split('@')[1];
+              let domainNameTail = req.body.domainNames[i].replaceAll(" ", "").split('@')[1];
               let newDomain = Object();
               newDomain.name = domainNameTail;
               newDomain.confirmed = false;
