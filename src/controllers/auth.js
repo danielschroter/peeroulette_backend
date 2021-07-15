@@ -179,6 +179,7 @@ const registerOrganization = async (req, res) => {
     let id = req.body.user_id;
 
       let retUser = await UserModel.findById(id);
+      let organization = {};
       // first create organisation with empty domains here
       if (req.body.compname != "") {
         const org = {
@@ -189,6 +190,7 @@ const registerOrganization = async (req, res) => {
 
           // create all domains
           let retOrg = await OrganizationModel.create(org);
+
           let i = 0;
 
           for (i; i < req.body.domainNames.length; i++) {
@@ -231,14 +233,14 @@ const registerOrganization = async (req, res) => {
               { _id: retOrg._id },
               { domains: domainIds },
           );
+          organization = retOrg;
       }
-        let user = retUser;
-    return res.status(200).json(user);
+    return res.status(200).json({organization: organization});
   } catch (err) {
     if (err.code == 11000) {
         console.warn("error 11000")
       return res.status(400).json({
-        error: "User exists",
+        error: "Organization already exists",
         message: err.message,
       });
     } else {
