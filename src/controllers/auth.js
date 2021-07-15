@@ -114,7 +114,7 @@ const register = async (req, res) => {
 
         let retOrg = await OrganizationModel.create(org);
 
-        const domains = req.body.domains.replaceAll(" ", "").split(',');
+        const domains = req.body.domains.toString().replaceAll(" ", "").split(',');
         const retDoms = new Array();
 
         for (var mail of domains) {
@@ -194,21 +194,24 @@ const registerOrganization = async (req, res) => {
           let i = 0;
 
           for (i; i < req.body.domainNames.length; i++) {
+              console.warn("get in here 1")
               let fullDomainName = req.body.domainNames[i];
-              let domainNameTail = req.body.domainNames[i].replaceAll(" ", "").split('@')[1];
+              let domainNameTail = req.body.domainNames[i].toString().replaceAll(" ", "").split('@')[1];
               let newDomain = Object();
               newDomain.name = domainNameTail;
               newDomain.confirmed = false;
               newDomain.verified_by = retUser._id;
               newDomain.organization = retOrg._id;
+              console.warn("get before create domain")
               let createdDomain = await DomainModel.create(newDomain);
+              console.warn("get after create domain")
+
               try {
                   sendEmail(fullDomainName, emailTemplate_Org_Verification.confirm(createdDomain._id, domainNameTail));
               } catch (err) {
                   console.log(err);
               }
           }
-
 
 
           // update organisation with user id and organisation id
@@ -227,6 +230,8 @@ const registerOrganization = async (req, res) => {
                   domainIds.push(allDomains[j]._id)
               }
           }
+          console.warn("get in here 2")
+
 
           // update organisation with new domainIds
           await OrganizationModel.findOneAndUpdate(
@@ -234,6 +239,8 @@ const registerOrganization = async (req, res) => {
               { domains: domainIds },
           );
           organization = retOrg;
+          console.warn("get in here 3")
+
       }
     return res.status(200).json({organization: organization});
   } catch (err) {
