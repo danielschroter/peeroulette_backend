@@ -39,6 +39,9 @@ server.on('error', (err) => {
 io.on("connection", socket => {
     socket.emit("your id", socket.id);
     socket.on("send message", body => {
+        console.warn("got message")
+        console.warn(body)
         io.emit("message", body)
     })
 })
+
