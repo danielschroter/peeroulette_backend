@@ -221,8 +221,6 @@ const registerOrganization = async (req, res) => {
               let fullDomainName = req.body.domainNames[i];
               let domainNameTail = req.body.domainNames[i].toString().replace(" ", "").split('@')[1];
               let newDomain = Object();
-              console.warn("debug")
-              console.warn(domainNameTail)
               newDomain.name = domainNameTail;
               newDomain.confirmed = false;
               newDomain.verified_by = retUser._id;
