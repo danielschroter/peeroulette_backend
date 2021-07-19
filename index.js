@@ -48,9 +48,16 @@ io.on("connection", socket => {
         console.warn(socket.id)
         console.warn("body Id")
         console.warn(body.id)
-        if (body.id === "60f2aed3ba41ccd256b3707e" || body.id === "60f2ae88ba41ccd256b37068") {
-            io.emit("message", body)
+        io.emit("message", body)
+
+        {/*
+            if (body.id === "60f2aed3ba41ccd256b3707e" || body.id === "60f2ae88ba41ccd256b37068") {
+            io.clients[body.id].emit("message", body)
+        } else {
+            console.warn("didn't sent message")
         }
+        */}
+
     })
 })
 
