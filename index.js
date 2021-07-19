@@ -37,11 +37,20 @@ server.on('error', (err) => {
 
 // connect socket.io for game
 io.on("connection", socket => {
+    console.warn("your id")
+    console.warn(socket.id)
+
     socket.emit("your id", socket.id);
+
     socket.on("send message", body => {
-        console.warn("got message")
+        console.warn("got message with ID:")
         console.warn(body)
-        io.emit("message", body)
+        console.warn(socket.id)
+        console.warn("body Id")
+        console.warn(body.id)
+        if (body.id === "60f2aed3ba41ccd256b3707e" || body.id === "60f2ae88ba41ccd256b37068") {
+            io.emit("message", body)
+        }
     })
 })
 
