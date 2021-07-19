@@ -17,6 +17,7 @@ const AppointmentSchema  = new mongoose.Schema({
     },
     interests: [{
         type: String,
+        default: [],
     }],
     // interests: [
     //     {
