@@ -32,15 +32,24 @@ const login = async (req, res) => {
       username: req.body.username,
     }).exec();
 
+    // check if user exists
+    if (!user) return res.status(404).json({
+      error: "User does not exist.",
+    });
+
     // check if the password is valid
     const isPasswordValid = bcrypt.compareSync(
       req.body.password,
       user.password
     );
-    if (!isPasswordValid) return res.status(401).send({ token: null });
+    if (!isPasswordValid) return res.status(404).json({
+      error: "Passwort incorrect.",
+    });
 
     // check if user confirmed his email to login
-    if (!user.confirmed) return res.status(401).send({ token: null });
+    if (!user.confirmed) return res.status(404).send({
+      error: "User not confirmed. Check your mailbox!",
+    });
 
     // if user is found and password is valid
     // create a token
@@ -57,7 +66,7 @@ const login = async (req, res) => {
     });
   } catch (err) {
     return res.status(404).json({
-      error: "User Not Found",
+      error: "User not found.",
       message: err.message,
     });
   }
@@ -87,6 +96,15 @@ const register = async (req, res) => {
   try {
     // hash the password before storing it in the database
     const hashedPassword = bcrypt.hashSync(req.body.password, 8);
+    
+  // Check if username already exists
+  let checkUser = await UserModel.findOne({
+    username: req.body.username,
+  }).exec();
+  if (checkUser)
+    return res.status(404).json({
+      error: "Username already exists.",
+    });
 
     // create a user object
     const user = {
@@ -103,7 +121,10 @@ const register = async (req, res) => {
     try {
       sendEmail(retUser.email, emailTemplate.confirm(retUser._id));
     } catch (err) {
-      console.log(err);
+      return res.status(404).json({
+        error: "Sending Email failed.",
+        message: err.message,
+      });
     }
 
     if (req.body.compname != "") {
@@ -149,7 +170,7 @@ const register = async (req, res) => {
     }
 
     // return new user
-    res.status(200).json(retUser);
+    return res.status(200).json({message: "Registration successful",});
   } catch (err) {
     if (err.code == 11000) {
       return res.status(400).json({
