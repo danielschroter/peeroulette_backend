@@ -2,6 +2,9 @@
 
 const DomainModel = require("../models/domain");
 const OrganizationModel = require("../models/organization");
+const emailTemplate_Org_Verification = require("../helper/emailTemplate_Org_Verification");
+const sendEmail = require("../helper/sendEmail");
+
 
 const list = async (req, res) => {
     try {
@@ -68,9 +71,19 @@ const create = async (req, res) => {
 
     // handle the request
     try {
+        let fullDomainName = req.body.domain.name;
+        let domainNameTail = fullDomainName.toString().replace(" ", "").split('@')[1];
+        req.body.domain.name = domainNameTail;
+
         let domain = await DomainModel.create(req.body.domain)
 
         let org = await OrganizationModel.findById(domain.organization);
+
+        try {
+            sendEmail(fullDomainName, emailTemplate_Org_Verification.confirm(domain._id, domainNameTail));
+        } catch (err) {
+            console.log(err);
+        }
 
         // update domains of organization with new domain
         let domains = org.domains;
