@@ -43,9 +43,22 @@ const available = async (req, res) => {
   }
   try {
     // get movie with id from database
-    let user = await UserModel.findOne({
+    let user = await UserModel.findById(req.params.id).exec();
+    if (!user){
+      return res.status(404).json({
+        error: "Not Found",
+        message: `User not found`,
+      });
+    }
+    // else{
+      // return res.status(200).json(user.interests);
+    // }
+
+    let available = await UserModel.findOne({
       $and: [{
         "online": true
+      }, {
+        "interests": { $in: user.interests }
       }, {
         "_id": {
           $ne: req.params.id
@@ -53,13 +66,13 @@ const available = async (req, res) => {
       }]
     }).sort({_id:1}).skip(page).limit(1).exec();
     // if no movie with id is found, return 404
-    if (!user)
+    if (!available)
       return res.status(404).json({
-        error: "Not Found",
-        message: `User not found`,
+        error: "None Available",
+        message: `No Match found`,
       });
     // return gotten movie
-    return res.status(200).json(user);
+    return res.status(200).json(available);
   } catch (err) {
     console.log(err);
     return res.status(500).json({
