@@ -54,7 +54,7 @@ const available = async (req, res) => {
       // return res.status(200).json(user.interests);
     // }
 
-    let available = await UserModel.findOne({
+    const query = {
       $and: [{
         "online": true
       }, {
@@ -64,7 +64,51 @@ const available = async (req, res) => {
           $ne: req.params.id
         }
       }]
-    }).sort({_id:1}).skip(page).limit(1).exec();
+    };
+
+    const options = {
+      // sort: {$size: {$setIntersection: [user.interests, interests]}}
+      sort: {"_id": 1}
+    };
+
+    console.log(req.params.id);
+
+    let available = await UserModel.aggregate([
+      {
+        $match: {
+          $and: [
+            {
+              "online": true
+            }, {
+              "interests": { $in: user.interests }
+            },
+          ]
+        }
+      },
+      {
+        $set: {
+          matchedCount: {
+            $size: {
+              $setIntersection: ["$interests", user.interests]
+            }
+          }
+        }
+      },
+      {
+        $sort: {
+          matchedCount: -1
+        }
+      }
+    ])
+
+    // sort({_id:1})
+    // $size: {
+    //   $setIntersection: [
+    //     user.interest, "interests"
+    //   ]
+    // }
+
+    // let available = await UserModel.findOne([query, options]).skip(page).limit(1).exec();
     // if no movie with id is found, return 404
     if (!available)
       return res.status(404).json({
