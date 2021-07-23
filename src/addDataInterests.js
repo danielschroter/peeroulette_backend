@@ -1,7 +1,7 @@
 var MongoClient = require('mongodb').MongoClient;
 var url = "mongodb://localhost:27017/";
 
-MongoClient.connect(url, function(err, db) {
+MongoClient.connect(url, function (err, db) {
     if (err) throw err;
     var dbo = db.db("moviedb");
     var myobj = {
@@ -11,14 +11,21 @@ MongoClient.connect(url, function(err, db) {
         organization: "60c859dbd47d0f0aa4727fcf",
     };
 
+    var conv = {
+        members: ['60f085713132b0c53c913faf', '60f07c7cae5f03c6440a5e69'],
+    }
+    var conv2 = {
+        members: ['60f085713132b0c53c913faf', '60f0195a0dc9ba16009b3fdd'],
+    }
+
     var appointments = {
-            title: "DeepL Exam",
-            startDate: '2021-07-13T15:45',
-            endDate: '2021-07-13T17:45',
-            description: "Write an DeepL Exam",
-            link: "Jitsi URL1",
-            user: '60ecae1607bc0e63ac91e780',
-            interests: ["Business and Industry"],
+        title: "DeepL Exam",
+        startDate: '2021-07-13T15:45',
+        endDate: '2021-07-13T17:45',
+        description: "Write an DeepL Exam",
+        link: "Jitsi URL1",
+        user: '60ecae1607bc0e63ac91e780',
+        interests: ["Business and Industry"],
     }
 
     var interests = {
@@ -348,7 +355,7 @@ MongoClient.connect(url, function(err, db) {
             ],
     }
 
-    dbo.collection("appointments").insertOne(appointments, function(err, res) {
+    dbo.collection("conversations").insertOne(conv2, function (err, res) {
         if (err) throw err;
         console.log("1 document inserted");
         db.close();
@@ -359,5 +366,6 @@ MongoClient.connect(url, function(err, db) {
         console.log("1 document inserted");
         db.close();
     });
-    */}
+    */
+    }
 });
