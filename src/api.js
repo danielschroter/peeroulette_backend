@@ -16,6 +16,7 @@ const conversation = require ('./routes/conversation')
 const message = require ('./routes/message')
 
 
+const appointment = require('./routes/appointment')
 
 const api = express();
 
@@ -42,6 +43,7 @@ api.use('/interests', interests);
 api.use('/domain', domain);
 api.use('/conversation', conversation);
 api.use('/message', message);
+api.use('/appointment', appointment);
 
 
 module.exports = api;
