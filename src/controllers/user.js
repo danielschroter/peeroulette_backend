@@ -77,11 +77,9 @@ const available = async (req, res) => {
       {
         $match: {
           $and: [
-            {
-              "online": true
-            }, {
-              "interests": { $in: user.interests }
-            },
+            // { "online": true },
+            // { "interests": { $in: user.interests } },
+            { "username": {$ne: user.username} }
           ]
         }
       },
