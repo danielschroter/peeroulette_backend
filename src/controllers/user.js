@@ -56,13 +56,20 @@ const available = async (req, res) => {
 
     console.log(req.params.id);
 
+    if(user.employeeFilter){
+      var filter = { "organization": {$eq: user.organization} };
+    }else{
+      var filter = {};
+    }
+
     let available = await UserModel.aggregate([
       {
         $match: {
           $and: [
-            // { "online": true },
+            { "online": true },
             // { "interests": { $in: user.interests } },
-            { "username": {$ne: user.username} }
+            { "username": {$ne: user.username} },
+            filter
           ]
         }
       },
@@ -75,12 +82,19 @@ const available = async (req, res) => {
           }
         }
       },
+      {$project: {
+        username: 1,
+        city: 1,
+        university: 1,
+        organization: 1,
+        matchedCount: 1,
+      }},
       {
         $sort: {
           matchedCount: -1
         }
       }
-    ]).skip(page).limit(1).exec();
+    ]).skip(page).exec();
 
     // sort({_id:1})
     // $size: {
@@ -97,13 +111,14 @@ const available = async (req, res) => {
     //   ]
     // }).skip(page).limit(1).exec();
     // if no movie with id is found, return 404
-    if (!available)
+    if (available.length == 0){
       return res.status(404).json({
         error: "None Available",
         message: `No Match found`,
       });
-    // return gotten movie
-    return res.status(200).json(available[0]);
+    }else{
+      return res.status(200).json(available[0]);
+    }
   } catch (err) {
     console.log(err);
     return res.status(500).json({
