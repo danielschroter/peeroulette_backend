@@ -54,23 +54,6 @@ const available = async (req, res) => {
       // return res.status(200).json(user.interests);
     // }
 
-    const query = {
-      $and: [{
-        "online": true
-      }, {
-        "interests": { $in: user.interests }
-      }, {
-        "_id": {
-          $ne: req.params.id
-        }
-      }]
-    };
-
-    const options = {
-      // sort: {$size: {$setIntersection: [user.interests, interests]}}
-      sort: {"_id": 1}
-    };
-
     console.log(req.params.id);
 
     let available = await UserModel.aggregate([
@@ -97,7 +80,7 @@ const available = async (req, res) => {
           matchedCount: -1
         }
       }
-    ])
+    ]).skip(page).limit(1).exec();
 
     // sort({_id:1})
     // $size: {
@@ -106,7 +89,13 @@ const available = async (req, res) => {
     //   ]
     // }
 
-    // let available = await UserModel.findOne([query, options]).skip(page).limit(1).exec();
+    let available2 = await UserModel.findOne({
+      $and: [
+        { "online": true },
+        { "interests": { $in: user.interests } },
+        { "_id": { $ne: req.params.id } }
+      ]
+    }).skip(page).limit(1).exec();
     // if no movie with id is found, return 404
     if (!available)
       return res.status(404).json({
@@ -114,7 +103,7 @@ const available = async (req, res) => {
         message: `No Match found`,
       });
     // return gotten movie
-    return res.status(200).json(available);
+    return res.status(200).json(available[0]);
   } catch (err) {
     console.log(err);
     return res.status(500).json({
