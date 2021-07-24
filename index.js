@@ -6,8 +6,7 @@ const mongoose   = require('mongoose');
 const api        = require('./src/api');
 const config     = require('./src/config');
 
-// added for socket.io
-const socket = require("socket.io");
+
 
 
 // Set the port to the API.
@@ -15,7 +14,6 @@ api.set('port', config.port);
 
 //Create a http server based on Express
 const server = http.createServer(api);
-const io = socket(server);
 
 // connect socket.io for game
 const socket = require("socket.io");
@@ -30,12 +28,6 @@ mongoose
         process.exit(err.statusCode);
     });
 
-io.on("connection", socket => {
-    socket.emit("your id", socket.id);
-    socket.on("send message", body => {
-        io.emit("message", body)
-    })
-})
 
 server.on('listening', () => {
     console.log(`API is running in port ${config.port}`);
@@ -139,9 +131,6 @@ io.on("connection", (socket) => {
             console.log(" receiver id " + body.body.receiverId + " seems to be not in array " + users);
         }
     });
-
-
-
 
 })
 
