@@ -18,4 +18,13 @@ router.delete(
     "/:id",
     AppointmentController.remove
 );
+router.post(
+    "/getRecommendations",
+    AppointmentController.getRecommendations
+);
+
+router.post(
+    "/getAppointment",
+    AppointmentController.getAppointment
+);
 module.exports = router;

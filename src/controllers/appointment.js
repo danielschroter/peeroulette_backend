@@ -7,10 +7,10 @@ const getAppointments = async (req, res) => {
     try {
         // get all appointments from database
 
-        console.log("Getting here");
+
+
         var mapping = {};
         var appointments = await AppointmentModel.find({}).exec();
-        console.log("Das sind appointments[0] " + appointments[0] + " type " + typeof(appointments));
         for (var i in appointments){
             // console.log("app vor Änderung " + appointments[i]);
             try{
@@ -27,6 +27,87 @@ const getAppointments = async (req, res) => {
         }
         // console.log(mapping);
         return res.status(200).json({appointments: appointments, mapping:mapping});
+    } catch (err) {
+        console.log(err);
+        return res.status(500).json({
+            error: "Internal server error",
+            message: err.message,
+        });
+    }
+};
+
+
+const getRecommendations = async (req, res) => {
+
+    if (Object.keys(req.body).length === 0) {
+        return res.status(400).json({
+            error: "Bad Request",
+            message: "The request body is empty",
+        });
+    }
+
+    try {
+        // get all appointments from database
+
+        let user = await UserModel.findById(req.body.id).exec();
+        if (!user){
+            return res.status(404).json({
+                error: "Not Found",
+                message: `User not found`,
+            });
+        }
+
+        let appointments = await AppointmentModel.aggregate([
+            {
+                $set: {
+                    matchedCount: {
+                        $size: {
+                            $setIntersection: ["$interests", user.interests]
+                        }
+                    }
+                }
+            },
+            // {$project: {
+            //         title: 1,
+            //         startDate: 1,
+            //         endDate: 1,
+            //         description: 1,
+            //         link: 1,
+            //         user: 1,
+            //         interests: 1,
+            //     }},
+            {
+                $sort: {
+                    matchedCount: -1
+                }
+            }
+        ]).limit(5).exec();
+
+
+
+
+        console.log("Getting here");
+        var mapping = {};
+        console.log("Das sind appointments[0] " + appointments[0] + " type " + typeof(appointments));
+        for (var i in appointments){
+            try{
+                const userid = appointments[i].user;
+                let user = await UserModel.findById(userid);
+                mapping[userid] = user.username;
+            }catch (e) {
+            }
+        }
+
+        appointments.map(elem => console.log("elems of array: " + elem.interests ));
+
+        if (appointments.length == 0){
+            return res.status(404).json({
+                error: "None Available",
+                message: `No Appointments found`,
+            });
+        }else{
+            return res.status(200).json({appointments: appointments, mapping: mapping});
+        }
     } catch (err) {
         console.log(err);
         return res.status(500).json({
@@ -59,6 +140,32 @@ const update = async (req, res) => {
             }
         ).exec();
 
+        // return updated movie
+        return res.status(200).json(appointment);
+    } catch (err) {
+        console.log(err);
+        return res.status(500).json({
+            error: "Internal server error",
+            message: err.message,
+        });
+    }
+};
+
+
+const getAppointment = async (req, res) => {
+    // check if the body of the request contains all necessary properties
+    if (Object.keys(req.body).length === 0) {
+        return res.status(400).json({
+            error: "Bad Request",
+            message: "The request body is empty",
+        });
+    }
+
+    // handle the request
+    try {
+        // find and update movie with id
+        console.log("id " + req.body.id);
+        let appointment = await AppointmentModel.findById(req.body.id).exec();
         // return updated movie
         return res.status(200).json(appointment);
     } catch (err) {
@@ -114,7 +221,9 @@ const remove = async (req, res) => {
 };
 
 module.exports = {
+    getRecommendations,
     getAppointments,
+    getAppointment,
     update,
     create,
     remove
