@@ -53,6 +53,16 @@ const getUser = (userId) => {
     return users.find((user) => user.userId === userId);
 };
 
+// needed to check and ensrue that messages are only sent between
+// the match of a user and its peer
+// so that when the the user changes the chat
+// the peer no longer receives any messages
+
+function senderReceiverUserPeerCheck (senderId, receiverId, userId, peerId) {
+    return ((senderId === peerId && receiverId === userId) ||
+        (senderId === userId && receiverId === peerId));
+}
+
 io.on("connection", (socket) => {
     //when ceonnect
     console.log("a user connected.");
@@ -83,16 +93,22 @@ io.on("connection", (socket) => {
     socket.on("startSpinning", body => {
         console.log("Got Start Spinning Command")
         const receiverId = body.body.receiverId;
+        const senderId = body.id;
+        const userId = body.body.userId;
+        const peerId = body.body.peerId;
         console.log("receiver id when start spinning " + receiverId);
         const user = getUser(receiverId);
         console.warn(body.body);
         console.warn(socket.id);
-        console.warn("body Id");
-        console.warn(body.id);
+        console.warn("This is the senderId");
+        console.warn(senderId);
 
-        try{
-            io.to(user.socketId).emit("startedSpin",body);
-        }catch(e){
+        try {
+            // spin wheel only within a match of two peers
+            if(senderReceiverUserPeerCheck(senderId, receiverId, userId, peerId)) {
+                io.to(user.socketId).emit("startedSpin",body);
+            }
+        } catch(e){
             console.log(" receiver id " + body.body.receiverId + " seems to be not in array " + users);
         }
 
@@ -100,30 +116,49 @@ io.on("connection", (socket) => {
 
     socket.on("initWheel", body => {
         const user = getUser(body.body.receiverId);
-
+        const receiverId = body.body.receiverId;
+        const senderId = body.id;
+        const userId = body.body.userId;
+        const peerId = body.body.peerId;
         console.log("wheel was initialised");
         console.log("THis is the receiverId " + body.body.receiverId);
         console.warn(body.body);
         console.warn(socket.id);
-        console.warn("body Id");
-        console.warn(body.id);
+        console.warn("This is the senderId");
+        console.warn(senderId);
+
         try{
+            // init wheel only within a match of two peers
             io.to(user.socketId).emit("wheelInitialised",body);
         }catch(e){
             console.log(" receiver id " + body.body.receiverId + " seems to be not in array " + users);
+            //removeUser(body.body.receiverId);
         }
     });
 
     socket.on("setBet", body => {
         const user = getUser(body.body.receiverId);
+        const receiverId = body.body.receiverId;
+        const senderId = body.id;
+        const userId = body.body.userId;
+        const peerId = body.body.peerId;
         console.log("wheel was initialised");
-        console.log("THis is the receiverId " + body.body.receiverId);
+        console.log("This is the receiverId " + body.body.receiverId);
         console.warn(body.body);
         console.warn(socket.id);
-        console.warn("body Id");
-        console.warn(body.id);
+        console.warn("This is the senderId");
+        console.warn(senderId);
+
+        console.warn("userId")
+        console.warn(userId)
+        console.warn("peerId")
+        console.warn(peerId)
+
         try {
-            io.to(user.socketId).emit("betWasSet", body);
+            // set bet only within a match of two peers
+            if(senderReceiverUserPeerCheck(senderId, receiverId, userId, peerId)) {
+                io.to(user.socketId).emit("betWasSet", body);
+            }
         } catch (e) {
             console.log(" receiver id " + body.body.receiverId + " seems to be not in array " + users);
         }
