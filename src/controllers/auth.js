@@ -32,15 +32,24 @@ const login = async (req, res) => {
       username: req.body.username,
     }).exec();
 
+    // check if user exists
+    if (!user) return res.status(404).json({
+      error: "User does not exist.",
+    });
+
     // check if the password is valid
     const isPasswordValid = bcrypt.compareSync(
       req.body.password,
       user.password
     );
-    if (!isPasswordValid) return res.status(401).send({ token: null });
+    if (!isPasswordValid) return res.status(404).json({
+      error: "Passwort incorrect.",
+    });
 
     // check if user confirmed his email to login
-    if (!user.confirmed) return res.status(401).send({ token: null });
+    if (!user.confirmed) return res.status(404).send({
+      error: "User not confirmed. Check your mailbox!",
+    });
 
     // if user is found and password is valid
     // create a token
@@ -57,7 +66,7 @@ const login = async (req, res) => {
     });
   } catch (err) {
     return res.status(404).json({
-      error: "User Not Found",
+      error: "User not found.",
       message: err.message,
     });
   }
@@ -87,6 +96,15 @@ const register = async (req, res) => {
   try {
     // hash the password before storing it in the database
     const hashedPassword = bcrypt.hashSync(req.body.password, 8);
+    
+  // Check if username already exists
+  let checkUser = await UserModel.findOne({
+    username: req.body.username,
+  }).exec();
+  if (checkUser)
+    return res.status(404).json({
+      error: "Username already exists.",
+    });
 
     // create a user object
     const user = {
@@ -103,7 +121,10 @@ const register = async (req, res) => {
     try {
       sendEmail(retUser.email, emailTemplate.confirm(retUser._id));
     } catch (err) {
-      console.log(err);
+      return res.status(404).json({
+        error: "Sending Email failed.",
+        message: err.message,
+      });
     }
 
     if (req.body.compname != "") {
@@ -114,7 +135,7 @@ const register = async (req, res) => {
 
         let retOrg = await OrganizationModel.create(org);
 
-        const domains = req.body.domains.replace(" ", "").split(',');
+        const domains = req.body.domains.toString().replace(" ", "").split(',');
         const retDoms = new Array();
 
         for (var mail of domains) {
@@ -149,9 +170,8 @@ const register = async (req, res) => {
     }
 
     // return new user
-    res.status(200).json(retUser);
+    return res.status(200).json({message: "Registration successful",});
   } catch (err) {
-    console.log("Getting in here");
     if (err.code == 11000) {
       return res.status(400).json({
         error: "User exists",
@@ -178,7 +198,10 @@ const registerOrganization = async (req, res) => {
   try {
     // get user from the database
     let id = req.body.user_id;
-    let retUser = await UserModel.findById(id);
+
+      let retUser = await UserModel.findById(id);
+      let organization = {};
+
       // first create organisation with empty domains here
       if (req.body.compname != "") {
         const org = {
@@ -187,24 +210,55 @@ const registerOrganization = async (req, res) => {
             account_owner: retUser._id,
       };
 
-        // create all domains
-          let retOrg = await OrganizationModel.create(org);
+            // Check if one of the domains already exists, then continue with process
           let i = 0;
           for (i; i < req.body.domainNames.length; i++) {
+              let domainNameTail = req.body.domainNames[i].toString().replace(" ", "").split('@')[1];
+              // if domain already exists throw error
+              try {
+                  let dom = await DomainModel.findOne({
+                      name: domainNameTail,
+                  }).exec();
+
+                  if (dom) {
+                      return res.status(400).json({
+                          error: "Domain already exists",
+                      });
+                  }
+              } catch (err) {
+                  return res.status(500).json({
+                      error: "Internal Server error 2",
+                      message: err.message,
+                  });
+              }
+          }
+
+          // create all domains
+          let retOrg = await OrganizationModel.create(org);
+
+
+          i = 0;
+          for (i; i < req.body.domainNames.length; i++) {
+              let fullDomainName = req.body.domainNames[i];
+              let domainNameTail = req.body.domainNames[i].toString().replace(" ", "").split('@')[1];
               let newDomain = Object();
-              newDomain.name = req.body.domainNames[i];
+              newDomain.name = domainNameTail;
               newDomain.confirmed = false;
               newDomain.verified_by = retUser._id;
               newDomain.organization = retOrg._id;
-              await DomainModel.create(newDomain);
+              let createdDomain = await DomainModel.create(newDomain);
+              try {
+                  sendEmail(fullDomainName, emailTemplate_Org_Verification.confirm(createdDomain._id, domainNameTail));
+              } catch (err) {
+                  console.log(err);
+              }
           }
-
-        // update organisation with user id and organisation id
-        await UserModel.findOneAndUpdate(
+          // update organisation with user id and organisation id
+          await UserModel.findOneAndUpdate(
         { _id: retUser._id },
         { account_owner_of_organization: retOrg._id },
         { new: true }
-        );
+          );
 
           // get all domainIds of current user
           let allDomains = await DomainModel.find({}).exec();
@@ -221,19 +275,19 @@ const registerOrganization = async (req, res) => {
               { _id: retOrg._id },
               { domains: domainIds },
           );
+          organization = retOrg;
       }
-        let user = retUser;
-    return res.status(200).json(user);
+    return res.status(200).json({organization: organization});
   } catch (err) {
     if (err.code == 11000) {
-        console.warn("error 11000")
+        console.warn("11100 error")
       return res.status(400).json({
-        error: "User exists",
+        error: "Organization already exists",
         message: err.message,
       });
     } else {
-        console.warn("error 500")
-      return res.status(500).json({
+        console.warn("500 error")
+        return res.status(500).json({
         error: "Internal server error",
         message: err.message,
       });
