@@ -115,10 +115,8 @@ io.on("connection", (socket) => {
 
     });
 
-    //TODO
     socket.on("setBet", body => {
         const user = getUser(body.body.receiverId);
-
         console.log("wheel was initialised");
         console.log("THis is the receiverId " + body.body.receiverId);
         console.warn(body.body);
