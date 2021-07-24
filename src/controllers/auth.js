@@ -72,6 +72,67 @@ const login = async (req, res) => {
   }
 };
 
+const trylogin = async (req, res) => {
+  // check if the body of the request contains all necessary properties
+  // if (!Object.prototype.hasOwnProperty.call(req.body, "password"))
+  //   return res.status(400).json({
+  //     error: "Bad Request",
+  //     message: "The request body must contain a password property",
+  //   });
+
+  if (!Object.prototype.hasOwnProperty.call(req.body, "username"))
+    return res.status(400).json({
+      error: "Bad Request",
+      message: "The request body must contain a username property",
+    });
+
+  // handle the request
+  try {
+    // get the user form the database
+    let user = await UserModel.findOne({
+      username: req.body.username,
+    }).exec();
+
+    // check if user exists
+    if (!user) return res.status(404).json({
+      error: "User does not exist.",
+    });
+
+    // check if the password is valid
+    // const isPasswordValid = bcrypt.compareSync(
+    //   req.body.password,
+    //   user.password
+    // );
+    // if (!isPasswordValid) return res.status(404).json({
+    //   error: "Passwort incorrect.",
+    // });
+    //
+    // // check if user confirmed his email to login
+    // if (!user.confirmed) return res.status(404).send({
+    //   error: "User not confirmed. Check your mailbox!",
+    // });
+
+    // if user is found and password is valid
+    // create a token
+    const token = jwt.sign(
+      { _id: user._id, username: user.username, role: user.role },
+      config.JwtSecret,
+      {
+        expiresIn: 86400, // expires in 24 hours
+      }
+    );
+
+    return res.status(200).json({
+      token: token,
+    });
+  } catch (err) {
+    return res.status(404).json({
+      error: "User not found.",
+      message: err.message,
+    });
+  }
+};
+
 const register = async (req, res) => {
   // check if the body of the request contains all necessary properties
   if (!Object.prototype.hasOwnProperty.call(req.body, "password"))
@@ -96,7 +157,7 @@ const register = async (req, res) => {
   try {
     // hash the password before storing it in the database
     const hashedPassword = bcrypt.hashSync(req.body.password, 8);
-    
+
   // Check if username already exists
   let checkUser = await UserModel.findOne({
     username: req.body.username,
@@ -180,6 +241,68 @@ const register = async (req, res) => {
     } else {
       return res.status(500).json({
         error: "Internal server error",
+        message: err.message,
+      });
+    }
+  }
+};
+
+const tryregister = async (req, res) => {
+  // check if the body of the request contains all necessary properties
+  // if (!Object.prototype.hasOwnProperty.call(req.body, "password"))
+  //   return res.status(400).json({
+  //     error: "Bad Request",
+  //     message: "The request body must contain a password property",
+  //   });
+
+  if (!Object.prototype.hasOwnProperty.call(req.body, "username"))
+    return res.status(400).json({
+      error: "Bad Request",
+      message: "The request body must contain a username property",
+    });
+
+  // if (!Object.prototype.hasOwnProperty.call(req.body, "email"))
+  //   return res.status(400).json({
+  //     error: "Bad Request",
+  //     message: "The request body must contain a email property",
+  //   });
+
+  // handle the request
+  try {
+    // hash the password before storing it in the database
+    // const hashedPassword = bcrypt.hashSync(req.body.password, 8);
+
+  // Check if username already exists
+  let checkUser = await UserModel.findOne({
+    username: req.body.username,
+  }).exec();
+  if (checkUser)
+    return res.status(404).json({
+      error: "Username already exists.",
+    });
+
+    // create a user object
+    const user = {
+      email: req.body.email,
+      username: req.body.username,
+      password: "",
+      role: "member",
+      online: req.body.online,
+      confirmed: req.body.confirmed,
+    };
+
+    // create the user in the database
+    let retUser = await UserModel.create(user);
+    return res.status(200).json({message: "Registration successful",});
+  } catch (err) {
+    if (err.code == 11000) {
+      return res.status(400).json({
+        error: "User exists",
+        message: err.message,
+      });
+    } else {
+      return res.status(500).json({
+        error: "Internal server error (oh je)",
         message: err.message,
       });
     }
@@ -360,7 +483,9 @@ const logout = (req, res) => {
 
 module.exports = {
   login,
+  trylogin,
   register,
+  tryregister,
   registerOrganization,
   confirm,
   logout,

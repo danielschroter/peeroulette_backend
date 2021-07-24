@@ -10,13 +10,13 @@ const UserSchema = new mongoose.Schema({
   },
   password: {
     type: String,
-    required: true,
+    required: false,
     unique: true,
   },
   // email for confirmation
   email: {
     type: String,
-    required: true,
+    required: false,
   },
   confirmed: {
     type: Boolean,
