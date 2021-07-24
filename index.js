@@ -84,8 +84,6 @@ io.on("connection", (socket) => {
         console.log("Got Start Spinning Command")
         const receiverId = body.body.receiverId;
         const senderId = body.id;
-        const userId = body.body.userId;
-        const peerId = body.body.peerId;
         console.log("receiver id when start spinning " + receiverId);
         const user = getUser(receiverId);
         console.warn(body.body);
