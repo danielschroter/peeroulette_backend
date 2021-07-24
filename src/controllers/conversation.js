@@ -7,6 +7,15 @@ const addConversation = async (req, res) => {
 		members: [req.body.senderId, req.body.receiverId],
 	};
 
+	// Check if conversation already exists
+	let checkConversation = await ConversationModel.findOne({
+		members: { $all: [req.body.senderId, req.body.receiverId] },
+	  }).exec();
+	  if (checkConversation)
+		return res.status(404).json({
+		  error: "Conversation already exists.",
+		});
+
 	try {
 		const savedConversation = await ConversationModel.create(newConversation);
 		return res.status(200).json(savedConversation);
