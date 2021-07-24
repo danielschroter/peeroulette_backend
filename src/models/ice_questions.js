@@ -4,7 +4,7 @@ const mongoose = require('mongoose');
 
 // Define the movie schema
 const Ice_QuestionsSchema  = new mongoose.Schema({
-    funnyIcebreakerQuestions: [{
+    icebreakerQuestions: [{
         type: String,
         required: true,
     }],
