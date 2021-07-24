@@ -14,6 +14,7 @@ const interests = require ('./routes/interests')
 const domain = require ('./routes/domain')
 const conversation = require ('./routes/conversation')
 const message = require ('./routes/message')
+const match = require ('./routes/match')
 
 
 const appointment = require('./routes/appointment')
@@ -44,6 +45,7 @@ api.use('/domain', domain);
 api.use('/conversation', conversation);
 api.use('/message', message);
 api.use('/appointment', appointment);
+api.use('/match', match);
 
 
 module.exports = api;
