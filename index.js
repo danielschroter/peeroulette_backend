@@ -130,35 +130,6 @@ io.on("connection", (socket) => {
         }
     });
 
-// Code for sockets
-
-
-
-//
-// // connect socket.io for game
-// io.on("connection", socket => {
-//     console.warn("your id")
-//     console.warn(socket.id)
-//
-//     socket.emit("your id", socket.id);
-//
-//     socket.on("send message", body => {
-//         console.warn("got message with ID:")
-//         console.warn(body)
-//         console.warn(socket.id)
-//         console.warn("body Id")
-//         console.warn(body.id)
-//         io.emit("message", body)
-//
-//         {/*
-//             if (body.id === "60f2aed3ba41ccd256b3707e" || body.id === "60f2ae88ba41ccd256b37068") {
-//             io.clients[body.id].emit("message", body)
-//         } else {
-//             console.warn("didn't sent message")
-//         }
-//         */}
-//
-//     });
 
 
 
