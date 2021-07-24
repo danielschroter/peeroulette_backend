@@ -89,13 +89,13 @@ const available = async (req, res) => {
     //   ]
     // }
 
-    let available2 = await UserModel.findOne({
-      $and: [
-        { "online": true },
-        { "interests": { $in: user.interests } },
-        { "_id": { $ne: req.params.id } }
-      ]
-    }).skip(page).limit(1).exec();
+    // let available2 = await UserModel.findOne({
+    //   $and: [
+    //     { "online": true },
+    //     { "interests": { $in: user.interests } },
+    //     { "_id": { $ne: req.params.id } }
+    //   ]
+    // }).skip(page).limit(1).exec();
     // if no movie with id is found, return 404
     if (!available)
       return res.status(404).json({
