@@ -112,9 +112,6 @@ io.on("connection", (socket) => {
         }catch(e){
             console.log(" receiver id " + body.body.receiverId + " seems to be not in array " + users);
         }
-
-
-
     });
 
     socket.on("setBet", body => {
@@ -131,6 +128,5 @@ io.on("connection", (socket) => {
             console.log(" receiver id " + body.body.receiverId + " seems to be not in array " + users);
         }
     });
-
 })
 
