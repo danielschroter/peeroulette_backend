@@ -8,7 +8,11 @@ const middlewares = require('./middlewares');
 
 const auth  = require('./routes/auth');
 const movie = require('./routes/movie');
-
+const user = require ('./routes/user')
+const organization = require ('./routes/organization')
+const interests = require ('./routes/interests')
+const domain = require ('./routes/domain')
+const appointment = require('./routes/appointment')
 
 const api = express();
 
@@ -22,13 +26,18 @@ api.use(middlewares.allowCrossDomain);
 // Basic route
 api.get('/', (req, res) => {
     res.json({
-        name: 'SEBA Master Movie Backend'
+        name: 'Backend for peeroulete'
     });
 });
 
 // API routes
 api.use('/auth'  , auth);
 api.use('/movies', movie);
+api.use('/user', user);
+api.use('/organization', organization);
+api.use('/interests', interests);
+api.use('/domain', domain);
+api.use('/appointment', appointment);
 
 
 module.exports = api;
