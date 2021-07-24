@@ -325,7 +325,7 @@ MongoClient.connect(url, function(err, db) {
             ],
     }
 
-    dbo.collection("icebreaker questions").insertOne(icebreakerQuestions, function(err, res) {
+    dbo.collection("ice_questions").insertOne(icebreakerQuestions, function(err, res) {
         if (err) throw err;
         console.log("1 document inserted");
         db.close();
