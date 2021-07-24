@@ -21,6 +21,8 @@ MongoClient.connect(url, function(err, db) {
             interests: ["Business and Industry"],
     }
 
+    // source of facebook interests: https://interestexplorer.io/facebook-interests-list/
+
     var interests = {
         facebookInterests:
             ["Business and Industry",
