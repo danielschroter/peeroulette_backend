@@ -1,6 +1,6 @@
-# seba-master-movie-backend application
+# peeroulette application
 
-seba-master-movie-frontend application can be found [here](https://github.com/sebischair/seba-master-movie-frontend)
+peeroulette-master-backend application can be found [here](https://gitlab.lrz.de/seba-master-2021/team-50/backend)
 
 ## Prerequisites
 
@@ -15,8 +15,10 @@ Just for the backend application:
 ## Setup (before first run)
 
 Go to your project root folder via command line
+
 ```
-cd path/to/workspace/seba-master-movie-backend
+git clone https://gitlab.lrz.de/seba-master-2021/team-50/backend
+cd path/to/workspace/backend
 ```
 
 **Install node dependencies**
@@ -32,6 +34,14 @@ npm install
 ```
 mongod --dbpath "path/to/database"
 ```
+## IMPORTANT! Before starting, run local addDataInterests.js file
+
+In our app we load the user interests and icebreaker questions from the backend. 
+Therefore, it is necessary to manually run the file addDataInterests.js. 
+If you have an IDE like Webstorm you can simply do a rightclick on the file and then click on run. 
+After running the file, the ice breaker questions and interests will be inserted into the backend. 
+To view them in mongo db, simply reload the window of mongodb.
+
 
 ## Start the project
 
