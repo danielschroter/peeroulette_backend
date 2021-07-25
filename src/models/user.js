@@ -46,8 +46,9 @@ const UserSchema = new mongoose.Schema({
       default: "Your University",
   },
   organization: {
-      type: String,
-      default: "Your Organization",
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Organization",
+
   },
   online: {
       type: Boolean,

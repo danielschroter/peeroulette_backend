@@ -48,40 +48,42 @@ const getRecommendations = async (req, res) => {
 
     try {
         // get all appointments from database
-
-        let user = await UserModel.findById(req.body.id).exec();
-        if (!user){
-            return res.status(404).json({
-                error: "Not Found",
-                message: `User not found`,
-            });
+        var interests = [];
+        if(req.body.id != "") {
+            let user = await UserModel.findById(req.body.id).exec();
+            if (!user){
+                return res.status(404).json({
+                    error: "Not Found",
+                    message: `User not found`,
+                });
+            }
+            interests = user.interests;
         }
+
+        if(req.body.searchInterests.length != 0){
+            interests = req.body.searchInterests;
+        }
+
+
+
+
 
         let appointments = await AppointmentModel.aggregate([
             {
                 $set: {
                     matchedCount: {
                         $size: {
-                            $setIntersection: ["$interests", user.interests]
+                            $setIntersection: ["$interests", interests]
                         }
                     }
                 }
             },
-            // {$project: {
-            //         title: 1,
-            //         startDate: 1,
-            //         endDate: 1,
-            //         description: 1,
-            //         link: 1,
-            //         user: 1,
-            //         interests: 1,
-            //     }},
             {
                 $sort: {
                     matchedCount: -1
                 }
             }
-        ]).limit(5).exec();
+        ]).limit(3).exec();
 
 
 
