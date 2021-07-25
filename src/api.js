@@ -37,7 +37,6 @@ api.get('/', (req, res) => {
 
 // API routes
 api.use('/auth'  , auth);
-api.use('/movies', movie);
 api.use('/user', user);
 api.use('/organization', organization);
 api.use('/interests', interests);
