@@ -7,7 +7,6 @@ const helmet     = require('helmet');
 const middlewares = require('./middlewares');
 
 const auth  = require('./routes/auth');
-const movie = require('./routes/movie');
 const user = require ('./routes/user')
 const organization = require ('./routes/organization')
 const interests = require ('./routes/interests')
