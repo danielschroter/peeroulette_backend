@@ -6,9 +6,6 @@ const mongoose   = require('mongoose');
 const api        = require('./src/api');
 const config     = require('./src/config');
 
-
-
-
 // Set the port to the API.
 api.set('port', config.port);
 
@@ -115,7 +112,6 @@ io.on("connection", (socket) => {
             io.to(user.socketId).emit("wheelInitialised",body);
         }catch(e){
             console.log(" receiver id " + body.body.receiverId + " seems to be not in array " + users);
-            //removeUser(body.body.receiverId);
         }
     });
 
