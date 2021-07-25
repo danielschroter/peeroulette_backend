@@ -67,10 +67,14 @@ io.on("connection", (socket) => {
     //send and get message
     socket.on("sendMessage", ({ senderId, receiverId, text }) => {
         const user = getUser(receiverId);
-        io.to(user.socketId).emit("getMessage", {
-            senderId,
-            text,
-        });
+		try{
+            io.to(user.socketId).emit("getMessage", {
+				senderId,
+				text,
+			});
+        }catch(e){
+            console.log("Receiver is not online.");
+        }
     });
 
     //when disconnect
