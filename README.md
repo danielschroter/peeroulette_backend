@@ -1,6 +1,6 @@
 # peeroulette application
 
-peeroulette-master-backend application can be found [here](https://gitlab.lrz.de/seba-master-2021/team-50/backend)
+The peeroulette-frontend application can be found [here](https://gitlab.lrz.de/seba-master-2021/team-50/frontend)
 
 ## Prerequisites
 
