@@ -107,6 +107,23 @@ const getLastMatches  = async (req, res) => {
     }
 };
 
+const getCurrentMatch  = async (req, res) => {
+    try {
+        let matches = await MatchModel.findOne({
+            "$or": [{
+                "usera": req.params.userId
+            }]
+        }).sort({createdAt:-1}).exec();
+
+        return res.status(200).json(matches);
+    } catch(err) {
+        return res.status(500).json({
+            error: 'Internal server error',
+            message: err.message
+        });
+    }
+};
+
 
 module.exports = {
     create,
@@ -115,4 +132,5 @@ module.exports = {
     remove,
     list,
     getLastMatches,
+    getCurrentMatch,
 };

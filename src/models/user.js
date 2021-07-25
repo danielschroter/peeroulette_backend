@@ -53,10 +53,10 @@ const UserSchema = new mongoose.Schema({
       type: Boolean,
       default: false,
   },
-  // online_until: {
-  //     type: Int64,
-  //     default: 0,
-  // },
+  online_until: {
+      type: "Number",
+      default: 0,
+  },
   employeeFilter: {
     type: Boolean,
     default: false,

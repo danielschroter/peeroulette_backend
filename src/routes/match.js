@@ -13,6 +13,7 @@ router.get('/:id', MatchController.read); // Read a match by Id
 router.put('/:id', middlewares.checkAuthentication, MatchController.update); // Update a match by Id
 router.delete('/:id', middlewares.checkAuthentication, MatchController.remove); // Delete a match by Id
 router.get('/last/:userId', MatchController.getLastMatches); // Get last matches of user
+router.get('/current/:userId', MatchController.getCurrentMatch); // Get last matches of user
 
 
 module.exports = router;
