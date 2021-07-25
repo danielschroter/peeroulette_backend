@@ -18,7 +18,6 @@ const match = require ('./routes/match')
 
 
 const appointment = require('./routes/appointment')
-const match = require('./routes/match')
 
 const api = express();
 
