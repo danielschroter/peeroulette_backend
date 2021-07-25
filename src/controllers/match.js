@@ -88,11 +88,34 @@ const list  = async (req, res) => {
     }
 };
 
+const last  = async (req, res) => {
+    try {
+        let matches = await MatchModel.find({
+          $or: [
+            {usera: {$eq: req.params.id}},
+            {userb: {$eq: req.params.id}}
+          ]
+        }).exec();
+
+        if (matches.length == 0) return res.status(404).json({
+            error: 'Not Found',
+            message: `Match not found for uID `+req.params.id
+        });
+
+        return res.status(200).json(matches);
+    } catch(err) {
+        return res.status(500).json({
+            error: 'Internal server error',
+            message: err.message
+        });
+    }
+};
 
 module.exports = {
     create,
     read,
     update,
     remove,
-    list
+    list,
+    last
 };
