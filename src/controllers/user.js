@@ -51,7 +51,7 @@ const online = async (req, res) => {
         // find and update movie with id
         let user = await UserModel.findByIdAndUpdate(
             req.params.id,
-            {online_until: (Date.now()+30000)}
+            {online_until: (Date.now()+3600000)}
         ).exec();
 
         // return updated movie
@@ -130,7 +130,6 @@ const available = async (req, res) => {
       {
         $match: {
           $and: [
-            { "online": true },
             { "interests": { $in: user.interests } },
             { "username": {$ne: user.username} },
             { "online_until": {$gt: Date.now()} },
@@ -160,6 +159,8 @@ const available = async (req, res) => {
         }
       }
     ]).skip(page).exec();
+
+    console.log("This is available length: " + available.length);
 
     // sort({_id:1})
     // $size: {
