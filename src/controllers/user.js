@@ -34,6 +34,70 @@ const update = async (req, res) => {
   }
 };
 
+const online = async (req, res) => {
+    // check if the body of the request contains all necessary properties
+    if (Object.keys(req.body).length === 0) {
+        return res.status(400).json({
+            error: "Bad Request",
+            message: "The request body is empty",
+        });
+    }
+
+    console.log("online be: "+req.params.id);
+
+    // handle the request
+    try {
+        console.log("try online be: "+req.params.id);
+        // find and update movie with id
+        let user = await UserModel.findByIdAndUpdate(
+            req.params.id,
+            {online_until: (Date.now()+3600000)}
+        ).exec();
+
+        // return updated movie
+        return res.status(200).json(user);
+    } catch (err) {
+        console.log("failed online be: "+req.params.id);
+        console.log(err);
+        return res.status(500).json({
+            error: "Internal server error",
+            message: err.message,
+        });
+    }
+};
+
+const offline = async (req, res) => {
+    // check if the body of the request contains all necessary properties
+    if (Object.keys(req.body).length === 0) {
+        return res.status(400).json({
+            error: "Bad Request",
+            message: "The request body is empty",
+        });
+    }
+
+    console.log("offline be: "+req.params.id);
+
+    // handle the request
+    try {
+        console.log("try offline be: "+req.params.id);
+        // find and update movie with id
+        let user = await UserModel.findByIdAndUpdate(
+            req.params.id,
+            {online_until: 0}
+        ).exec();
+
+        // return updated movie
+        return res.status(200).json(user);
+    } catch (err) {
+        console.log("failed offline be: "+req.params.id);
+        console.log(err);
+        return res.status(500).json({
+            error: "Internal server error",
+            message: err.message,
+        });
+    }
+};
+
 const available = async (req, res) => {
   console.log("Ava.: " + req.params.id);
   if(req.params.page){
@@ -43,23 +107,84 @@ const available = async (req, res) => {
   }
   try {
     // get movie with id from database
-    let user = await UserModel.findOne({
-      $and: [{
-        "online": true
-      }, {
-        "_id": {
-          $ne: req.params.id
-        }
-      }]
-    }).sort({_id:1}).skip(page).limit(1).exec();
-    // if no movie with id is found, return 404
-    if (!user)
+    let user = await UserModel.findById(req.params.id).exec();
+    if (!user){
       return res.status(404).json({
         error: "Not Found",
         message: `User not found`,
       });
-    // return gotten movie
-    return res.status(200).json(user);
+    }
+    // else{
+      // return res.status(200).json(user.interests);
+    // }
+
+    console.log(req.params.id);
+
+    if(user.employeeFilter){
+      var filter = { "organization": {$eq: user.organization} };
+    }else{
+      var filter = {};
+    }
+
+    let available = await UserModel.aggregate([
+      {
+        $match: {
+          $and: [
+            { "interests": { $in: user.interests } },
+            { "username": {$ne: user.username} },
+            { "online_until": {$gt: Date.now()} },
+            filter
+          ]
+        }
+      },
+      {
+        $set: {
+          matchedCount: {
+            $size: {
+              $setIntersection: ["$interests", user.interests]
+            }
+          }
+        }
+      },
+      {$project: {
+        username: 1,
+        city: 1,
+        university: 1,
+        organization: 1,
+        matchedCount: 1,
+      }},
+      {
+        $sort: {
+          matchedCount: -1
+        }
+      }
+    ]).skip(page).exec();
+
+    console.log("This is available length: " + available.length);
+
+    // sort({_id:1})
+    // $size: {
+    //   $setIntersection: [
+    //     user.interest, "interests"
+    //   ]
+    // }
+
+    // let available2 = await UserModel.findOne({
+    //   $and: [
+    //     { "online": true },
+    //     { "interests": { $in: user.interests } },
+    //     { "_id": { $ne: req.params.id } }
+    //   ]
+    // }).skip(page).limit(1).exec();
+    // if no movie with id is found, return 404
+    if (available.length == 0){
+      return res.status(404).json({
+        error: "None Available",
+        message: `No Match found`,
+      });
+    }else{
+      return res.status(200).json(available[0]);
+    }
   } catch (err) {
     console.log(err);
     return res.status(500).json({
@@ -143,6 +268,8 @@ const list  = async (req, res) => {
 module.exports = {
   read,
   update,
+  online,
+    offline,
   remove,
   list,
   available,

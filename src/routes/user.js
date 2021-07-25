@@ -13,6 +13,14 @@ router.get("/:id/available", UserController.available); // List available users
 router.get("/:id/available/:page", UserController.available); // List available users
 router.post("/switchEmployeeFilter", UserController.switchEmployeeFilter)
 router.put(
+    "/:id/online",
+    UserController.online
+); // Set User as Online
+router.put(
+    "/:id/offline",
+    UserController.offline
+); // Set User as Online
+router.put(
     "/:id",
     UserController.update
 ); // Update a user by Id, needs logged in user with the admin role
