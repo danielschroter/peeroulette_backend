@@ -12,6 +12,11 @@ const user = require ('./routes/user')
 const organization = require ('./routes/organization')
 const interests = require ('./routes/interests')
 const domain = require ('./routes/domain')
+const conversation = require ('./routes/conversation')
+const message = require ('./routes/message')
+const match = require ('./routes/match')
+
+
 const appointment = require('./routes/appointment')
 const ice_questions = require('./routes/ice_questions')
 
@@ -38,7 +43,11 @@ api.use('/user', user);
 api.use('/organization', organization);
 api.use('/interests', interests);
 api.use('/domain', domain);
+api.use('/conversation', conversation);
+api.use('/message', message);
 api.use('/appointment', appointment);
+api.use('/match', match);
+
 api.use('/ice_questions', ice_questions);
 
 module.exports = api;

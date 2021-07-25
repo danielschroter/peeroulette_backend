@@ -16,4 +16,4 @@ MatchSchema.set('timestamps', true);
 
 
 // Export the Movie model
-module.exports = mongoose.model('Movie', MovieSchema);
+module.exports = mongoose.model('Match', MatchSchema);
