@@ -106,6 +106,8 @@ const register = async (req, res) => {
       error: "Username already exists.",
     });
 
+
+
     // create a user object
     const user = {
       email: req.body.email,
@@ -295,6 +297,36 @@ const registerOrganization = async (req, res) => {
   }
 };
 
+const updateOrganizationsAtUsers = async (org_id, domain_name) => {
+
+    console.log("Do you go in here");
+    let users = await UserModel.find({}).exec();
+    for(let i = 0; i<users.length; i++){
+        let user = users[i];
+        if(user.email.includes(domain_name)){
+            await UserModel.findByIdAndUpdate(user._id, {organization: org_id}).exec();
+        }
+    }
+}
+
+const updateIfUserBelongsToCompany = async(usermail, userid) => {
+    console.log("This is Usermail " +  usermail);
+    let dom = usermail.split("@")[1];
+    console.log("This is dom " +  dom);
+    let domains = await DomainModel.find({
+        name: dom,
+    }).exec();
+
+    console.log(domains.length);
+    for(let i = 0; i<domains.length; i++){
+        let d = domains[i];
+        if(d.confirmed){
+            await UserModel.findByIdAndUpdate(userid, {organization: d.organization}).exec();
+            console.log("organization " + d.organization +  " was updated at user " + userid);
+        }
+    }
+};
+
 const confirm = async (req, res) => {
   try {
     const id = req.body.id;
@@ -316,12 +348,19 @@ const confirm = async (req, res) => {
                 message: `Object not found`,
             });
         else if (obj && !obj.confirmed) {
-            await DomainModel.findByIdAndUpdate(id, { confirmed: true }).exec();
+            let dom = await DomainModel.findByIdAndUpdate(id, { confirmed: true }).exec();
+            console.log("dom.organization " + dom.organization);
+
+            await updateOrganizationsAtUsers(dom.organization, dom.name);
+
+            let org = await OrganizationModel.findById(dom.organization);
             return res.status(200).json(obj);
         }
 
     }else if (user && !user.confirmed) {
         await UserModel.findByIdAndUpdate(id, { confirmed: true }).exec();
+
+        await updateIfUserBelongsToCompany(user.email, user._id);
         return res.status(200).json(user);
     }
 
