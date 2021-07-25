@@ -6,9 +6,6 @@ const mongoose   = require('mongoose');
 const api        = require('./src/api');
 const config     = require('./src/config');
 
-
-
-
 // Set the port to the API.
 api.set('port', config.port);
 
@@ -87,16 +84,18 @@ io.on("connection", (socket) => {
     socket.on("startSpinning", body => {
         console.log("Got Start Spinning Command")
         const receiverId = body.body.receiverId;
+        const senderId = body.id;
         console.log("receiver id when start spinning " + receiverId);
         const user = getUser(receiverId);
         console.warn(body.body);
         console.warn(socket.id);
-        console.warn("body Id");
-        console.warn(body.id);
+        console.warn("This is the senderId");
+        console.warn(senderId);
 
-        try{
+        try {
             io.to(user.socketId).emit("startedSpin",body);
-        }catch(e){
+
+        } catch(e){
             console.log(" receiver id " + body.body.receiverId + " seems to be not in array " + users);
         }
 
@@ -104,37 +103,38 @@ io.on("connection", (socket) => {
 
     socket.on("initWheel", body => {
         const user = getUser(body.body.receiverId);
-
+        const receiverId = body.body.receiverId;
+        const senderId = body.id;
         console.log("wheel was initialised");
         console.log("THis is the receiverId " + body.body.receiverId);
         console.warn(body.body);
         console.warn(socket.id);
-        console.warn("body Id");
-        console.warn(body.id);
+        console.warn("This is the senderId");
+        console.warn(senderId);
+
         try{
             io.to(user.socketId).emit("wheelInitialised",body);
         }catch(e){
             console.log(" receiver id " + body.body.receiverId + " seems to be not in array " + users);
         }
-
-
-
     });
 
     socket.on("setBet", body => {
         const user = getUser(body.body.receiverId);
+        const receiverId = body.body.receiverId;
+        const senderId = body.id;
         console.log("wheel was initialised");
-        console.log("THis is the receiverId " + body.body.receiverId);
+        console.log("This is the receiverId " + body.body.receiverId);
         console.warn(body.body);
         console.warn(socket.id);
-        console.warn("body Id");
-        console.warn(body.id);
+        console.warn("This is the senderId");
+        console.warn(senderId);
+
         try {
             io.to(user.socketId).emit("betWasSet", body);
         } catch (e) {
             console.log(" receiver id " + body.body.receiverId + " seems to be not in array " + users);
         }
     });
-
 })
 

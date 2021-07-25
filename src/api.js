@@ -18,6 +18,7 @@ const match = require ('./routes/match')
 
 
 const appointment = require('./routes/appointment')
+const ice_questions = require('./routes/ice_questions')
 
 const api = express();
 
@@ -47,5 +48,6 @@ api.use('/message', message);
 api.use('/appointment', appointment);
 api.use('/match', match);
 
+api.use('/ice_questions', ice_questions);
 
 module.exports = api;

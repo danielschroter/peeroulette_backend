@@ -58,8 +58,22 @@ const getConversation = async (req, res) => {
 	}
 };
 
+const deleteConversation = async (req, res) => {
+    try {
+        await ConversationModel.findByIdAndRemove(req.params.id).exec();
+
+        return res.status(200).json({message: `Conversation with id${req.params.id} was deleted`});
+    } catch(err) {
+        return res.status(500).json({
+            error: 'Internal server error',
+            message: err.message
+        });
+    }
+};
+
 module.exports = {
 	addConversation,
 	getUserConversation,
 	getConversation,
+	deleteConversation,
 };

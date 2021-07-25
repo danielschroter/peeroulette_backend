@@ -11,5 +11,6 @@ router.get(
 	"/find/:firstUserId/:secondUserId",
 	ConversationController.getConversation
 ); // Get conversation of two users
+router.delete('/:id', ConversationController.deleteConversation); // Delete a conversation by Id
 
 module.exports = router;
